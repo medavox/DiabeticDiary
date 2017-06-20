@@ -8,48 +8,51 @@
     tools:context="com.medavox.diabeticdiary.MainActivity">
 
 
-    <ScrollView
-        android:layout_width="368dp"
-        android:layout_height="495dp"
-        tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="8dp">
+<ScrollView
+    android:layout_width="368dp"
+    android:layout_height="495dp"
+    tools:layout_editor_absoluteX="10dp"
+    tools:layout_editor_absoluteY="8dp">
 
-        <LinearLayout
+    <!-- all-things wrapper for scrollview -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-
-            <TableLayout
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"/>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </TableLayout>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </TableLayout>
-
-            <LinearLayout
+        <!-- 2 column container -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="8dp">
 
-                
-                <LinearLayout
+
+            <!-- checkbox column -->
+            <LinearLayout
                 android:id="@+id/checkbox_column"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -79,7 +82,6 @@
                     android:checked="false"
                     android:text="Quick-Acting Insulin"/>
 
-
                 <CheckBox
                     android:id="@+id/BIcheckBox"
                     android:layout_width="wrap_content"
@@ -87,7 +89,6 @@
                     android:layout_weight="0.16"
                     android:checked="false"
                     android:text="Background Insulin"/>
-
 
                 <CheckBox
                     android:id="@+id/KTcheckBox"
@@ -146,15 +147,16 @@
                     android:ems="10"
                     android:inputType="numberDecimal"/>
 
-
             </LinearLayout>
-            <Button
-                android:id="@+id/button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Record"/>
 
-        </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </LinearLayout> <!-- end 2 column container -->
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Record"/>
+
+    </LinearLayout> <!-- end all-things wrapper for scrollview -->
+</ScrollView>
 </android.support.constraint.ConstraintLayout>
