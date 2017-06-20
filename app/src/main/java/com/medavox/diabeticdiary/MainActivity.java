@@ -3,7 +3,6 @@ package com.medavox.diabeticdiary;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.provider.Telephony;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -14,9 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TableLayout;
+import android.widget.Toast;
 
-import com.medavox.util.validate.Validator;
+import com.medavox.util.io.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,9 +24,12 @@ import static com.medavox.util.validate.Validator.check;
 //todo: import numberpicker module from https://github.com/SimonVT/android-numberpicker,
 //todo: then customise it to my needs
 
+//todo: re-blank and untick everything during onResume, so we don't have to on every fresh entry
+
 public class MainActivity extends AppCompatActivity {
     private static final int smsSendRequestCode = 42;
     private static final String TAG = "DiabeticDiary";
+    private String waitingMessage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,19 +63,18 @@ public class MainActivity extends AppCompatActivity {
         Button recordButton = (Button) findViewById(R.id.button);
 
         //for BG input, only allow 2 digits before the decimal place, and 1 after
-        Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
+        //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
         inputs[0].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
         //the same with CP
         inputs[1].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         //for QA, allow no digits after the decimal point.
-        // This might not work, as the field is already integer-constrained
         inputs[2].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,0)});
 
         //with BI, allow 3 digit integers. I used to take ~80, so it's not impossible
         inputs[3].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3,0)});
 
-        //for KT, i'd be worried if ketones were > 9, but again it's not impossible
+        //for KT, I'd be very worried if ketones were > 9, but again it's not impossible
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         InputFilter filter = new InputFilter() {
@@ -100,86 +101,38 @@ public class MainActivity extends AppCompatActivity {
                 //Log.i("DiabeticDiary", "hectaminutes fit within an int:"+ (hectaMinutes < Integer.MAX_VALUE));
 
                 //select which fields have been ticked
-                String out = "Diabetic Diary ENTRY {";
+                String out = "Diabetic Diary ENTRY @ "+ DateTime.get(now, DateTime.TimeFormat.MINUTES)+" {";
+                boolean anyTicked = false;
                 for(int i = 0; i < checkBoxes.length; i++) {
                     if(checkBoxes[i].isChecked()){
+                        anyTicked = true;
                         out += names[i]+":"+inputs[i].getText()+"; ";
                     }
                 }
                 out += "}";
                 Log.i(TAG, out);
 
-                //support runtime permission checks on android versions >= 6.0
-                //if we're on android 6+ AND we haven't got location permissions yet, ask for them
-                /*if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.SEND_SMS)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-                    // todo: Show an explanation to the user *asynchronously*
-                    // After the user sees the explanation, try again to request the permission.
-
-                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
+                if(!anyTicked) {
+                    Toast.makeText(MainActivity.this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
                 }
                 else {
+                    //support runtime permission checks on android versions >= 6.0
+                    //if we're on android 6+ AND we haven't got location permissions yet, ask for them
+                    if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.SEND_SMS)
+                            != PackageManager.PERMISSION_GRANTED) {
 
-                    SmsManager.getDefault().sendTextMessage("07516041435", null, out, null, null);
-                }*/
+                        // todo: Show an explanation to the user *asynchronously*
+                        // After the user sees the explanation, try again to request the permission.
+                        waitingMessage = out;
+                        requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
+                    } else {
 
-
+                        SmsManager.getDefault().sendTextMessage("redacted", null, out, null, null);
+                        Toast.makeText(MainActivity.this, "Message sent:"+out, Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
-        //TableLayout
-
-
-        //old
-        /*
-        //Initialise BG values
-        NumeroPiquer majorBG = (NumeroPiquer)findViewById(R.id.majorBG);
-        majorBG.setMaxValue(35);
-        majorBG.setMinValue(1);
-        majorBG.setValue(6);
-        majorBG.setWrapSelectorWheel(false);
-
-        NumeroPiquer minorBG = (NumeroPiquer)findViewById(R.id.minorBG);
-        minorBG.setMaxValue(9);
-        minorBG.setMinValue(0);
-
-        //Initialise CP values
-
-        NumberPicker majorCP = (NumberPicker)findViewById(R.id.majorCP);
-        majorCP.setMinValue(0);
-        majorCP.setMaxValue(100);
-        majorCP.setValue(1);
-        majorCP.setWrapSelectorWheel(false);
-
-        NumberPicker minorCP = (NumberPicker)findViewById(R.id.minorCP);
-        minorCP.setMinValue(0);
-        minorCP.setMaxValue(9);*/
-
-        //Initialise QA values
-        /*NumberPicker QAunits = (NumberPicker)findViewById(R.id.QAunits);
-        QAunits.setMinValue(0);
-        QAunits.setMaxValue(80);
-        QAunits.setWrapSelectorWheel(false);
-
-        //Initialise BI values
-        NumeroPiquer BIunits = (NumeroPiquer)findViewById(R.id.BIunits);
-        BIunits.setMinValue(0);
-        BIunits.setMaxValue(255);
-        BIunits.setWrapSelectorWheel(false);
-
-        //Initialise KT values
-        NumeroPiquer majorKT = (NumeroPiquer)findViewById(R.id.majorKT);
-        majorKT.setMaxValue(20);
-        majorKT.setMinValue(0);
-        majorKT.setValue(0);
-        majorKT.setWrapSelectorWheel(false);
-
-        NumeroPiquer minorKT = (NumeroPiquer)findViewById(R.id.minorKT);
-        minorKT.setMinValue(0);
-        minorKT.setMaxValue(9);
-        */
-
-
     }
     //taken from stackoverflow.com/questions/5357455
     public class DecimalDigitsInputFilter implements InputFilter {
@@ -216,12 +169,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.i(TAG, "permission \"" + permissions[0] + "\" result: " + grantResults[0]);
-        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if(waitingMessage != null) {
+                SmsManager.getDefault()
+                        .sendTextMessage("redacted", null, waitingMessage, null, null);
+                Toast.makeText(MainActivity.this, "Message sent:"+waitingMessage,
+                        Toast.LENGTH_LONG).show();
+                waitingMessage = null;
+            }
         }
-        else if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //the user has granted permission, so start the location service
-            //this happens by starting the service in onResume()
+        else {
+            Toast.makeText(this, "Permission Refused!", Toast.LENGTH_SHORT).show();
+            //permission refused
         }
     }
 }
