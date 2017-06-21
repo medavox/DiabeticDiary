@@ -2,11 +2,15 @@ package com.medavox.diabeticdiary;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -25,6 +29,10 @@ import android.widget.Toast;
 
 import com.medavox.util.io.DateTime;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,6 +52,9 @@ import static com.medavox.util.io.DateTime.DateFormat;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
+    private static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
+
     @BindView(R.id.entry_time_button) Button entryTimeButton;
 
     private static final int smsSendRequestCode = 42;
@@ -61,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String waitingMessage = null;
     private static long instantOpened;
-    private static Button entryTimeStaticButton;
+    private static Button entryTimeStaticButton;//again, fuck you
+    private File storageDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +113,12 @@ public class MainActivity extends AppCompatActivity {
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         entryTimeStaticButton = entryTimeButton;
+
+        storageDir = Environment.getExternalStorageDirectory();
     }
 
     @OnClick(R.id.record_button)
-    public void recordButtonClick() {
+    public void clickRecordButton() {
         //get time button was pressed as time of reading
         //convert to number of 10-second periods (1/6 of a minute) since the epoch
         //this reduces unnecessary precision, and increases the time until we have a Y2K-type issue (in 2038)
@@ -113,23 +127,80 @@ public class MainActivity extends AppCompatActivity {
         //long hectaMinutes = now/10000;
         //Log.i("DiabeticDiary", "hectaminutes fit within an int:"+ (hectaMinutes < Integer.MAX_VALUE));
 
+        //generate the csv-format log line, store it in SharePreferences,
+        //then attempt to write it to external storage.
+        String csvFormatLine = "";
+
         //select which fields have been ticked
         String out = "Diabetic Diary ENTRY @ "+ DateTime.get(instantOpened,
                 DateTime.TimeFormat.MINUTES)+" {";
         boolean anyTicked = false;
         for(int i = 0; i < checkBoxes.length; i++) {
-            if(checkBoxes[i].isChecked()){
+            csvFormatLine += ",";
+            if(checkBoxes[i].isChecked()) {
                 anyTicked = true;
                 out += names[i]+":"+inputs[i].getText()+"; ";
+                csvFormatLine += inputs[i].getText();
             }
         }
         out += "}";
+        csvFormatLine = csvFormatLine.substring(1);
         Log.i(TAG, out);
 
         if(!anyTicked) {
             Toast.makeText(MainActivity.this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
         }
         else {
+            //first cache the entry in SharedPreferences before attempting a disk write
+            SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
+
+            if(sp.contains(ENTRIES_CACHE_KEY)) {
+                //prepend existing data to what we'll write to SP
+                csvFormatLine = sp.getString(ENTRIES_CACHE_KEY, "") + "\n" + csvFormatLine;
+            }
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(ENTRIES_CACHE_KEY, csvFormatLine);
+            editor.apply();
+
+            //save the entry to external storage
+            String extState = Environment.getExternalStorageState();
+            if(Environment.MEDIA_MOUNTED.equals(extState)) {
+                File log = new File(storageDir, "DiabeticDiary.csv");
+                try {
+                    boolean existed = log.exists();
+                    if(!existed) {
+                        if (!log.createNewFile()) {
+                            throw new IOException("File.createNewFile returned false for \"" + log + "\"");
+                        }
+                    }
+                    //FileOutputStream fos = new FileOutputStream(log);
+                    PrintStream csvFile = new PrintStream(log);
+
+                    if(!existed) {
+                        //write CSV header
+                        String s = "DATETIME";
+                        for (String t : names) {
+                            s += ","+t;
+                        }
+                        //s = s.substring(1);
+                        csvFile.println(s);
+                    }
+                    //file is now ready for writing to, either way
+                    csvFile.println(csvFormatLine);
+                    csvFile.flush();
+
+                    //if we haven't crapped out to the catch-block by now, the diskwrite must have succeeded
+                    //so delete the cached entries in SP
+                    editor.remove(ENTRIES_CACHE_KEY);
+                    editor.apply();
+                }
+                catch(IOException ioe) {
+                    Log.e(TAG, "failed to create file \""+log+"\"; reason: "
+                            +ioe.getLocalizedMessage());
+                }
+            }
+
+            //text the entry to interested numbers
             //support runtime permission checks on android versions >= 6.0
             //if we're on android 6+ AND we haven't got location permissions yet, ask for them
             if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.SEND_SMS)
@@ -228,10 +299,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public static class DateTimePickerFragment extends DialogFragment {
-
-
         private Calendar c = Calendar.getInstance();
         @Nullable
         @Override
@@ -255,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //alternative approach to updating entryTimeButton:
                     //view.getRootView().findViewById(R.id.entry_time_button);
 
                     c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
@@ -264,10 +333,7 @@ public class MainActivity extends AppCompatActivity {
                     DateTimePickerFragment.this.dismiss();
                 }
             });
-
             return view;
-
-            //return super.onCreateView(inflater, container, savedInstanceState);
         }
     }
 }
