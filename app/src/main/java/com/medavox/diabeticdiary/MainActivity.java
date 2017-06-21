@@ -33,7 +33,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -129,7 +132,9 @@ public class MainActivity extends AppCompatActivity {
 
         //generate the csv-format log line, store it in SharePreferences,
         //then attempt to write it to external storage.
-        String csvFormatLine = "";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
+        String csvFormatLine = sdf.format(new Date(instantOpened));
 
         //select which fields have been ticked
         String out = "Diabetic Diary ENTRY @ "+ DateTime.get(instantOpened,
@@ -144,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         out += "}";
-        csvFormatLine = csvFormatLine.substring(1);
+        //csvFormatLine = csvFormatLine.substring(1);
         Log.i(TAG, out);
 
         if(!anyTicked) {
@@ -169,12 +174,13 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     boolean existed = log.exists();
                     if(!existed) {
+                        Log.d(TAG, "csv file does not exist, creating it...");
                         if (!log.createNewFile()) {
                             throw new IOException("File.createNewFile returned false for \"" + log + "\"");
                         }
                     }
-                    //FileOutputStream fos = new FileOutputStream(log);
-                    PrintStream csvFile = new PrintStream(log);
+                    FileOutputStream fos = new FileOutputStream(log, /*append*/true);
+                    PrintStream csvFile = new PrintStream(fos);
 
                     if(!existed) {
                         //write CSV header
@@ -187,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //file is now ready for writing to, either way
                     csvFile.println(csvFormatLine);
-                    csvFile.flush();
+                    csvFile.close();
 
                     //if we haven't crapped out to the catch-block by now, the diskwrite must have succeeded
                     //so delete the cached entries in SP
@@ -225,6 +231,9 @@ public class MainActivity extends AppCompatActivity {
             if(et != null) {
                 et.setText("");
             }
+        }
+        for(CheckBox cb : checkBoxes) {
+            cb.setChecked(false);
         }
         inputs[0].requestFocus();
         instantOpened  = System.currentTimeMillis();
