@@ -2,11 +2,10 @@ package com.medavox.diabeticdiary;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,9 +13,12 @@ import android.telephony.SmsManager;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -40,35 +42,32 @@ import static com.medavox.util.io.DateTime.DateFormat;
 
 //todo: re-blank and untick everything during onResume, so we don't have to on every fresh entry
 
-public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.entry_time_button) Button entryTimeButton;
 
-    //static immutables
     private static final int smsSendRequestCode = 42;
     private static final String TAG = "DiabeticDiary";
 
-    //instance immutables
     private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT"};
     private final int[] inputIDs = new int[] {R.id.BGinput, R.id.CPinput, R.id.QAinput, R.id.BIinput,
             R.id.KTinput};
     private final EditText[] inputs = new EditText[inputIDs.length];
     private final int[] checkboxIDs = new int[] {R.id.BGcheckBox, R.id.CPcheckBox, R.id.QAcheckBox,
             R.id.BIcheckBox, R.id.KTcheckBox};
+
+
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
-    //instance mutables
     private String waitingMessage = null;
     private static long instantOpened;
-    private static MainActivity instance;//fuck you
+    private static Button entryTimeStaticButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        instance = this;
 
         for(int i = 0; i < inputs.length; i++) {
             inputs[i]  = (EditText) findViewById(inputIDs[i]);
@@ -85,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         catch(Exception e) {
             Log.e("DiabeticDiary", "validation exception:"+e);
         }
-        Button recordButton = (Button) findViewById(R.id.button);
 
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
@@ -102,22 +100,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         //for KT, I'd be very worried if ketones were > 9, but again it's not impossible
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
-    }
-
-    @OnClick(R.id.entry_time_button)
-    public void entryTimeClick() {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getSupportFragmentManager(), "timePicker");
-    }
-
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(instantOpened);
-        c.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        c.set(Calendar.MINUTE, minute);
-        instantOpened = c.getTimeInMillis();
-        updateEntryTime();
+        entryTimeStaticButton = entryTimeButton;
     }
 
     @OnClick(R.id.record_button)
@@ -172,17 +155,24 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
                 et.setText("");
             }
         }
+        inputs[0].requestFocus();
         instantOpened  = System.currentTimeMillis();
         updateEntryTime();
     }
 
-    private void updateEntryTime() {
-        if(entryTimeButton != null) {
-            entryTimeButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
+    @OnClick(R.id.entry_time_button)
+    public void entryTimeClick() {
+        DialogFragment newFragment = new DateTimePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "DateTimePicker");
+    }
+
+    private static void updateEntryTime() {
+        if(entryTimeStaticButton != null) {
+            entryTimeStaticButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
                     DateFormat.BRIEF_WITH_DAY));
         }
         else {
-            Log.e(TAG, "entry time button was null during onResume!");
+            Log.e(TAG, "entry time (static) button was null during onResume!");
         }
     }
 
@@ -238,20 +228,46 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         }
     }
 
-    public static class TimePickerFragment extends DialogFragment {
-        private final Calendar c = Calendar.getInstance();
+
+    public static class DateTimePickerFragment extends DialogFragment {
+
+
+        private Calendar c = Calendar.getInstance();
+        @Nullable
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.date_time_picker, container);
 
-            c.setTimeInMillis(System.currentTimeMillis());
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            final TimePicker timePicker = (TimePicker)(view.findViewById(R.id.timePicker));
+            final DatePicker datePicker = (DatePicker)(view.findViewById(R.id.datePicker));
 
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), MainActivity.instance/*listener*/, hour, minute,
-                    true/*is 24-hour view*/);
+            //disallow selection of dates in the future
+            datePicker.setMaxDate(System.currentTimeMillis());
+            timePicker.setIs24HourView(true);
 
+            //set pickers to instantOpened
+            c.setTimeInMillis(instantOpened);
+            datePicker.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+            timePicker.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
+            timePicker.setCurrentMinute(c.get(Calendar.MINUTE));
+
+            Button confirmButton = (Button)(view.findViewById(R.id.confirm_date_time));
+            confirmButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //view.getRootView().findViewById(R.id.entry_time_button);
+
+                    c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
+                            timePicker.getCurrentHour(), timePicker.getCurrentMinute());
+                    instantOpened = c.getTimeInMillis();
+                    updateEntryTime();
+                    DateTimePickerFragment.this.dismiss();
+                }
+            });
+
+            return view;
+
+            //return super.onCreateView(inflater, container, savedInstanceState);
         }
     }
 }
