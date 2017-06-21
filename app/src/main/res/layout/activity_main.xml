@@ -21,28 +21,13 @@
         android:orientation="vertical">
 
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </TableLayout>
-
         <!-- 2 column container -->
+        <Button
+            android:id="@+id/entry_time_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Button"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -152,10 +137,15 @@
         </LinearLayout> <!-- end 2 column container -->
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/record_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Record"/>
+
+        <ListView
+            android:id="@+id/numbers_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </LinearLayout> <!-- end all-things wrapper for scrollview -->
 </ScrollView>

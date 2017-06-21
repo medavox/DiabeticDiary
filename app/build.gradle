@@ -29,4 +29,7 @@ dependencies {
     compile 'cn.aigestudio.wheelpicker:WheelPicker:1.1.2'
     compile 'com.github.medavox:utils:v0.8'
     testCompile 'junit:junit:4.12'
+
+    compile 'com.jakewharton:butterknife:8.6.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
 }
