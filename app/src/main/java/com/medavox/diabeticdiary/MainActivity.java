@@ -51,8 +51,6 @@ import static com.medavox.util.io.DateTime.DateFormat;
 //todo: import numberpicker module from https://github.com/SimonVT/android-numberpicker,
 //todo: then customise it to my needs
 
-//todo: re-blank and untick everything during onResume, so we don't have to on every fresh entry
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
@@ -69,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
     private final EditText[] inputs = new EditText[inputIDs.length];
     private final int[] checkboxIDs = new int[] {R.id.BGcheckBox, R.id.CPcheckBox, R.id.QAcheckBox,
             R.id.BIcheckBox, R.id.KTcheckBox};
-
-
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
     private String waitingMessage = null;
@@ -84,12 +80,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        for(int i = 0; i < inputs.length; i++) {
-            inputs[i]  = (EditText) findViewById(inputIDs[i]);
-        }
-
         for(int i = 0; i < checkBoxes.length; i++) {
             checkBoxes[i] = (CheckBox)findViewById(checkboxIDs[i]);
+        }
+
+        for(int i = 0; i < inputs.length; i++) {
+            inputs[i]  = (EditText) findViewById(inputIDs[i]);
         }
 
         try {
@@ -122,14 +118,6 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.record_button)
     public void clickRecordButton() {
-        //get time button was pressed as time of reading
-        //convert to number of 10-second periods (1/6 of a minute) since the epoch
-        //this reduces unnecessary precision, and increases the time until we have a Y2K-type issue (in 2038)
-        //plus, the time fits within an int, allowing us to use it as the index to an array
-        //which can store the log entries
-        //long hectaMinutes = now/10000;
-        //Log.i("DiabeticDiary", "hectaminutes fit within an int:"+ (hectaMinutes < Integer.MAX_VALUE));
-
         //generate the csv-format log line, store it in SharePreferences,
         //then attempt to write it to external storage.
 
@@ -222,10 +210,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
+        instantOpened  = System.currentTimeMillis();
         //clear all fields on resume, to prepare the app for a fresh entry
         for(EditText et : inputs) {
             if(et != null) {
@@ -233,10 +221,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         for(CheckBox cb : checkBoxes) {
-            cb.setChecked(false);
+            if(cb != null) {
+                cb.setChecked(false);
+            }
         }
         inputs[0].requestFocus();
-        instantOpened  = System.currentTimeMillis();
         updateEntryTime();
     }
 
@@ -282,10 +271,11 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        //todo: handle multiple permissions
         //if there are no permissions etc to process, return early.
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
         if(permissions.length != 1 || grantResults.length != 1) {
+            Log.e(TAG, "Got weird permissions results. Permissions length:"+permissions.length+
+            "; Grant results length: "+grantResults.length);
             return;
         }
         Log.i(TAG, "permissions results length:" + permissions.length);
