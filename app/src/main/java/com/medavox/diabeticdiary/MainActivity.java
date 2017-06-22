@@ -13,11 +13,15 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,7 +40,9 @@ import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
     private static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
+    private static final String SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients";
 
     @BindView(R.id.entry_time_button) Button entryTimeButton;
 
@@ -115,6 +122,48 @@ public class MainActivity extends AppCompatActivity {
 
         storageDir = Environment.getExternalStorageDirectory();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        instantOpened  = System.currentTimeMillis();
+        //clear all fields on resume, to prepare the app for a fresh entry
+        for(EditText et : inputs) {
+            if(et != null) {
+                et.setText("");
+            }
+        }
+        for(CheckBox cb : checkBoxes) {
+            if(cb != null) {
+                cb.setChecked(false);
+            }
+        }
+        inputs[0].requestFocus();
+        updateEntryTime();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_numbers_menu_item:
+                //do stuff
+                return true;
+            case R.id.review_entries_menu_item:
+                //do other stuff
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    //When you successfully handle a menu item, return true. If you don't handle the menu item, you should call the superclass implementation of onOptionsItemSelected() (the default implementation returns false).
 
     @OnClick(R.id.record_button)
     public void clickRecordButton() {
@@ -204,29 +253,9 @@ public class MainActivity extends AppCompatActivity {
                 waitingMessage = out;
                 requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
             } else {
-                SmsManager.getDefault().sendTextMessage("redacted", null, out, null, null);
-                Toast.makeText(MainActivity.this, "Message sent:"+out, Toast.LENGTH_LONG).show();
+                sendSms(out);
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        instantOpened  = System.currentTimeMillis();
-        //clear all fields on resume, to prepare the app for a fresh entry
-        for(EditText et : inputs) {
-            if(et != null) {
-                et.setText("");
-            }
-        }
-        for(CheckBox cb : checkBoxes) {
-            if(cb != null) {
-                cb.setChecked(false);
-            }
-        }
-        inputs[0].requestFocus();
-        updateEntryTime();
     }
 
     @OnClick(R.id.entry_time_button)
@@ -285,16 +314,37 @@ public class MainActivity extends AppCompatActivity {
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //if there was a message due to go out when we had to ask permission, send it now
             if(waitingMessage != null) {
-                SmsManager.getDefault()
-                        .sendTextMessage("redacted", null, waitingMessage, null, null);
-                Toast.makeText(MainActivity.this, "Message sent:"+waitingMessage,
-                        Toast.LENGTH_LONG).show();
+                sendSms(waitingMessage);
                 waitingMessage = null;
             }
         }
         else {
             Toast.makeText(this, "Permission Refused!", Toast.LENGTH_SHORT).show();
             //permission refused
+        }
+    }
+
+    /**Sends the text to all interested phone numbers*/
+    private void sendSms(String message) {
+        SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
+        Set<String> defaultNumbers = new LinkedHashSet<>(0);
+        Set<String> recipients = sp.getStringSet(SMS_RECIPIENTS_KEY, defaultNumbers);
+        if(recipients.size() > 0) {
+            for(String number : recipients) {
+                if(PhoneNumberUtils.isGlobalPhoneNumber(number)){
+                    SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
+                }
+                else {
+                    Log.e(TAG, "invalid phone number \""+number+"\" in SharedPreferences");
+                }
+            }
+
+            Toast.makeText(MainActivity.this, "SMS sent:\"" + message + "\"",
+                    Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(MainActivity.this, "No recipients set for SMS entry sending",
+                    Toast.LENGTH_LONG).show();
         }
     }
 

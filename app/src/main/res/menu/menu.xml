@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/review_entries_menu_item"
+        android:checkable="false"
+        android:enabled="true"
+        android:title="Review Entries"
+        android:visible="true"/>
+    <item
+        android:id="@+id/edit_numbers_menu_item"
+        android:checkable="false"
+        android:enabled="true"
+        android:title="Edit Phone Numbers"
+        android:visible="true"/>
+</menu>
