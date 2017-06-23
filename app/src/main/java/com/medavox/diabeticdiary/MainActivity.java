@@ -177,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
                 newFragment.show(getSupportFragmentManager(), "EditNumbersDialog");
                 return true;
             case R.id.review_entries_menu_item:
-                //do other stuff
+                //todo: show log review screen
+                Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
