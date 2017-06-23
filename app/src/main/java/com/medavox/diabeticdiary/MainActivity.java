@@ -1,7 +1,6 @@
 package com.medavox.diabeticdiary;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,7 +9,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -26,12 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -42,13 +38,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -67,9 +60,9 @@ import static com.medavox.util.io.DateTime.DateFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
+    public static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
     private static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
-    private static final String SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients";
+    public static final String SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients";
 
     @BindView(R.id.entry_time_button) Button entryTimeButton;
 
@@ -369,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static String stringsOf(Collection<Object> co) {
+    public static String stringsOf(Collection<Object> co) {
         String s = "[ ";
         for(Object o : co) {
             s += o.toString()+"; ";
@@ -377,15 +370,7 @@ public class MainActivity extends AppCompatActivity {
         return s+" ]";
     }
 
-    private static String stringsOf(Adapter adapter) {
-        String s = "[ ";
-        for(int i = 0; i < adapter.getCount(); i++) {
-            s += adapter.getItem(i).toString()+"; ";
-        }
-        return s+" ]";
-    }
-
-    private static String stringsOf(Object[] array) {
+    public static String stringsOf(Object[] array) {
         String s = "[ ";
         for(int i = 0; i < array.length; i++) {
             s += array[i].toString()+"; ";
@@ -393,78 +378,9 @@ public class MainActivity extends AppCompatActivity {
         return s+" ]";
     }
 
-    private static boolean isValidPhoneNumber(String s) {
+    //todo: improve validation
+    public static boolean isValidPhoneNumber(String s) {
         return s.length() == 11 && s.startsWith("07");
-    }
-
-    public static class EditNumbersDialogFragment extends DialogFragment {
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                                 @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.edit_numbers_dialog, container);
-            final SharedPreferences sp = getActivity().getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
-            Set<String> emptyNumbers = new HashSet<>(0);
-            Set<String> sharedPrefsNumbers = sp.getStringSet(SMS_RECIPIENTS_KEY, emptyNumbers);
-            List<String> numbersListCollection = new ArrayList<>();
-
-            ArrayAdapter<String> numbersAdapter = new ArrayAdapter<String>(getActivity(),
-                    R.layout.edit_numbers_list_item, numbersListCollection);
-            numbersAdapter.addAll(sharedPrefsNumbers);
-            Log.i(TAG, "numbersAdapter length:"+numbersAdapter.getCount()+
-                    "; contents (including loaded SharedPrefs data):"+stringsOf(numbersAdapter));
-
-            final ListView listView = (ListView)view.findViewById(R.id.numbers_list);
-            Button addButton = (Button)view.findViewById(R.id.add_number_button);
-            Button saveButton = (Button)view.findViewById(R.id.confirm_numbers);
-            final EditText editBox = (EditText)view.findViewById(R.id.number_edit_box);
-
-            listView.setAdapter(numbersAdapter);
-            addButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //this is terrible, todo: fix it
-                    String editBoxContents = editBox.getText().toString();
-                    if(!isValidPhoneNumber(editBoxContents)) {
-                        Toast.makeText(getActivity(), "Entered text is not a valid British mobile phone number.",
-                                Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
-                    adapter.add(editBoxContents);
-                    Log.i(TAG, "add pressed; new adapter length:"+adapter.getCount()+
-                            "; contents: "+stringsOf(adapter));
-                    //numbersAdapter.notifyDataSetChanged();
-                }
-            });
-
-            saveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    SharedPreferences.Editor editor = sp.edit();
-                    //bizarrely, there doesn't seem to be a method in ArrayAdapters,
-                    // to get all the data out in one go. eg ArrayAdapter.getArray()
-                    ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
-                    Set<String> newData = new HashSet<String>(adapter.getCount());
-                    String numbersAsString = "";
-                    for(int i = 0; i < adapter.getCount(); i++) {
-                        String s = adapter.getItem(i);
-                        if(isValidPhoneNumber(s)) {
-                            newData.add(s);
-                            numbersAsString += adapter.getItem(i) + "; ";
-                        }
-                    }
-                    editor.putStringSet(SMS_RECIPIENTS_KEY, newData);
-                    editor.apply();
-                    Toast.makeText(getActivity(), "Numbers saved.", Toast.LENGTH_SHORT).show();
-                    dismiss();
-
-                    Log.i(TAG, "Saved the following numbers to SharedPreferences:"+numbersAsString);
-                }
-            });
-
-            return view;
-        }
     }
 
     public static class DateTimePickerFragment extends DialogFragment {
