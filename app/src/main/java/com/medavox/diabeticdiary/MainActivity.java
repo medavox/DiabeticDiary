@@ -14,8 +14,10 @@ import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -98,7 +100,29 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i < inputs.length; i++) {
             inputs[i]  = (EditText) findViewById(inputIDs[i]);
+
+            //tick the box to include data when there is, and untick it when it's not
+            final CheckBox cb = checkBoxes[i];
+            inputs[i].addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(editable.length() == 0 && cb.isChecked()) {
+                        cb.setChecked(false);
+                    }
+                    else if(editable.length() > 0 && !cb.isChecked()) {
+                        cb.setChecked(true);
+                    }
+                }
+            });
         }
+
+
 
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
@@ -171,18 +195,17 @@ public class MainActivity extends AppCompatActivity {
         String csvFormatLine = sdf.format(new Date(instantOpened));
 
         //select which fields have been ticked
-        String out = "Diabetic Diary ENTRY @ "+ DateTime.get(instantOpened,
-                DateTime.TimeFormat.MINUTES)+" {";
+        String out = DateTime.get(instantOpened,
+                DateTime.TimeFormat.MINUTES, DateFormat.BRIEF_WITH_DAY)+": ";
         boolean anyTicked = false;
         for(int i = 0; i < checkBoxes.length; i++) {
             csvFormatLine += ",";
             if(checkBoxes[i].isChecked()) {
                 anyTicked = true;
-                out += names[i]+":"+inputs[i].getText()+"; ";
+                out += names[i]+":"+inputs[i].getText()+", ";
                 csvFormatLine += inputs[i].getText();
             }
         }
-        out += "}";
         //csvFormatLine = csvFormatLine.substring(1);
         Log.i(TAG, out);
 
@@ -418,8 +441,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     SharedPreferences.Editor editor = sp.edit();
-                    //bizarrely, there doesn't seem to a method in ArrayAdapters
-                    // to get all the data out in one go
+                    //bizarrely, there doesn't seem to be a method in ArrayAdapters,
+                    // to get all the data out in one go. eg ArrayAdapter.getArray()
                     ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
                     Set<String> newData = new HashSet<String>(adapter.getCount());
                     String numbersAsString = "";
