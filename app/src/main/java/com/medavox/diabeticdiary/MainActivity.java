@@ -13,7 +13,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -24,10 +23,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -38,9 +40,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -78,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
     private String waitingMessage = null;
     private static long instantOpened;
-    private static Button entryTimeStaticButton;//again, fuck you
     private File storageDir;
 
     @Override
@@ -95,14 +100,6 @@ public class MainActivity extends AppCompatActivity {
             inputs[i]  = (EditText) findViewById(inputIDs[i]);
         }
 
-        try {
-            check(checkBoxes.length == inputs.length,
-                    "the number of names must equal the number of input fields!");
-        }
-        catch(Exception e) {
-            Log.e("DiabeticDiary", "validation exception:"+e);
-        }
-
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
         inputs[0].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
@@ -117,8 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
         //for KT, I'd be very worried if ketones were > 9, but again it's not impossible
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
-
-        entryTimeStaticButton = entryTimeButton;
 
         storageDir = Environment.getExternalStorageDirectory();
     }
@@ -139,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         inputs[0].requestFocus();
-        updateEntryTime();
+        updateEntryTime(entryTimeButton);
     }
 
     @Override
@@ -153,7 +148,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit_numbers_menu_item:
-                //do stuff
+                //todo: show phone number entry dialog
+                DialogFragment newFragment = new EditNumbersDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "EditNumbersDialog");
                 return true;
             case R.id.review_entries_menu_item:
                 //do other stuff
@@ -264,9 +261,9 @@ public class MainActivity extends AppCompatActivity {
         newFragment.show(getSupportFragmentManager(), "DateTimePicker");
     }
 
-    private static void updateEntryTime() {
-        if(entryTimeStaticButton != null) {
-            entryTimeStaticButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
+    private static void updateEntryTime(Button entryTimeButton) {
+        if(entryTimeButton != null) {
+            entryTimeButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
                     DateFormat.BRIEF_WITH_DAY));
         }
         else {
@@ -331,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
         Set<String> recipients = sp.getStringSet(SMS_RECIPIENTS_KEY, defaultNumbers);
         if(recipients.size() > 0) {
             for(String number : recipients) {
-                if(PhoneNumberUtils.isGlobalPhoneNumber(number)){
+                if(isValidPhoneNumber(number)) {
                     SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
                 }
                 else {
@@ -348,11 +345,110 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static String stringsOf(Collection<Object> co) {
+        String s = "[ ";
+        for(Object o : co) {
+            s += o.toString()+"; ";
+        }
+        return s+" ]";
+    }
+
+    private static String stringsOf(Adapter adapter) {
+        String s = "[ ";
+        for(int i = 0; i < adapter.getCount(); i++) {
+            s += adapter.getItem(i).toString()+"; ";
+        }
+        return s+" ]";
+    }
+
+    private static String stringsOf(Object[] array) {
+        String s = "[ ";
+        for(int i = 0; i < array.length; i++) {
+            s += array[i].toString()+"; ";
+        }
+        return s+" ]";
+    }
+
+    private static boolean isValidPhoneNumber(String s) {
+        return s.length() == 11 && s.startsWith("07");
+    }
+
+    public static class EditNumbersDialogFragment extends DialogFragment {
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                                 @Nullable Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.edit_numbers_dialog, container);
+            final SharedPreferences sp = getActivity().getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
+            Set<String> emptyNumbers = new HashSet<>(0);
+            Set<String> sharedPrefsNumbers = sp.getStringSet(SMS_RECIPIENTS_KEY, emptyNumbers);
+            List<String> numbersListCollection = new ArrayList<>();
+
+            ArrayAdapter<String> numbersAdapter = new ArrayAdapter<String>(getActivity(),
+                    R.layout.edit_numbers_list_item, numbersListCollection);
+            numbersAdapter.addAll(sharedPrefsNumbers);
+            Log.i(TAG, "numbersAdapter length:"+numbersAdapter.getCount()+
+                    "; contents (including loaded SharedPrefs data):"+stringsOf(numbersAdapter));
+
+            final ListView listView = (ListView)view.findViewById(R.id.numbers_list);
+            Button addButton = (Button)view.findViewById(R.id.add_number_button);
+            Button saveButton = (Button)view.findViewById(R.id.confirm_numbers);
+            final EditText editBox = (EditText)view.findViewById(R.id.number_edit_box);
+
+            listView.setAdapter(numbersAdapter);
+            addButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //this is terrible, todo: fix it
+                    String editBoxContents = editBox.getText().toString();
+                    if(!isValidPhoneNumber(editBoxContents)) {
+                        Toast.makeText(getActivity(), "Entered text is not a valid British mobile phone number.",
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
+                    adapter.add(editBoxContents);
+                    Log.i(TAG, "add pressed; new adapter length:"+adapter.getCount()+
+                            "; contents: "+stringsOf(adapter));
+                    //numbersAdapter.notifyDataSetChanged();
+                }
+            });
+
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedPreferences.Editor editor = sp.edit();
+                    //bizarrely, there doesn't seem to a method in ArrayAdapters
+                    // to get all the data out in one go
+                    ArrayAdapter<String> adapter = (ArrayAdapter<String>)listView.getAdapter();
+                    Set<String> newData = new HashSet<String>(adapter.getCount());
+                    String numbersAsString = "";
+                    for(int i = 0; i < adapter.getCount(); i++) {
+                        String s = adapter.getItem(i);
+                        if(isValidPhoneNumber(s)) {
+                            newData.add(s);
+                            numbersAsString += adapter.getItem(i) + "; ";
+                        }
+                    }
+                    editor.putStringSet(SMS_RECIPIENTS_KEY, newData);
+                    editor.apply();
+                    Toast.makeText(getActivity(), "Numbers saved.", Toast.LENGTH_SHORT).show();
+                    dismiss();
+
+                    Log.i(TAG, "Saved the following numbers to SharedPreferences:"+numbersAsString);
+                }
+            });
+
+            return view;
+        }
+    }
+
     public static class DateTimePickerFragment extends DialogFragment {
         private Calendar c = Calendar.getInstance();
         @Nullable
         @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                                 @Nullable Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.date_time_picker, container);
 
             final TimePicker timePicker = (TimePicker)(view.findViewById(R.id.timePicker));
@@ -378,7 +474,7 @@ public class MainActivity extends AppCompatActivity {
                     c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
                             timePicker.getCurrentHour(), timePicker.getCurrentMinute());
                     instantOpened = c.getTimeInMillis();
-                    updateEntryTime();
+                    updateEntryTime((Button)getActivity().findViewById(R.id.entry_time_button));
                     DateTimePickerFragment.this.dismiss();
                 }
             });
