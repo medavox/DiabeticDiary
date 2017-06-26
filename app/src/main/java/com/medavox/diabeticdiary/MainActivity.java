@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,18 +17,12 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.medavox.util.io.DateTime;
@@ -38,7 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -51,7 +44,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.medavox.util.validate.Validator.check;
 import static com.medavox.util.io.DateTime.TimeFormat;
 import static com.medavox.util.io.DateTime.DateFormat;
 
@@ -78,8 +70,13 @@ public class MainActivity extends AppCompatActivity {
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
     private String waitingMessage = null;
-    private static long instantOpened;
+    static long instantOpened;
     private File storageDir;
+
+    //the timestamp , andevery field (excluding NOTES) at its max length, in the SMS format
+    private static final int MAX_CHARS = 62;
+
+    //including ( NOTES:"<MSG>") makes 71
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
             checkBoxes[i] = (CheckBox)findViewById(checkboxIDs[i]);
         }
 
+        //add an anonymous TextWatcher for every input field
         for(int i = 0; i < inputs.length; i++) {
             inputs[i]  = (EditText) findViewById(inputIDs[i]);
 
-            //tick the box to include data when there is, and untick it when it's not
+            //tick the box when there's text in the input field, and untick it when there's not
             final CheckBox cb = checkBoxes[i];
             inputs[i].addTextChangedListener(new TextWatcher() {
                 @Override
@@ -115,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-
-
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
         inputs[0].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
@@ -133,6 +129,14 @@ public class MainActivity extends AppCompatActivity {
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         storageDir = Environment.getExternalStorageDirectory();
+    }
+
+    public int recalculateSmsLength() {
+        int length = 0;
+        for(int i = 0; i < inputs.length; i++) {
+            length += (checkBoxes[i].isChecked() ? names[i].length() + inputs[i].length() +3 : 0);
+        }
+        return length;
     }
 
     @Override
@@ -152,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
         inputs[0].requestFocus();
         updateEntryTime(entryTimeButton);
+
     }
 
     @Override
@@ -178,30 +183,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //When you successfully handle a menu item, return true. If you don't handle the menu item, you should call the superclass implementation of onOptionsItemSelected() (the default implementation returns false).
-
     @OnClick(R.id.record_button)
     public void clickRecordButton() {
         //generate the csv-format log line, store it in SharePreferences,
         //then attempt to write it to external storage.
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
-        String csvFormatLine = sdf.format(new Date(instantOpened));
+        String csvFormatOut = sdf.format(new Date(instantOpened));
 
         //select which fields have been ticked
-        String out = DateTime.get(instantOpened,
+        String smsFormatOut = DateTime.get(instantOpened,
                 DateTime.TimeFormat.MINUTES, DateFormat.BRIEF_WITH_DAY)+": ";
         boolean anyTicked = false;
         for(int i = 0; i < checkBoxes.length; i++) {
-            csvFormatLine += ",";
+            csvFormatOut += ",";
             if(checkBoxes[i].isChecked()) {
                 anyTicked = true;
-                out += names[i]+":"+inputs[i].getText()+", ";
-                csvFormatLine += inputs[i].getText();
+                smsFormatOut += names[i]+":"+inputs[i].getText()+", ";
+                csvFormatOut += inputs[i].getText();
             }
         }
         //csvFormatLine = csvFormatLine.substring(1);
-        Log.i(TAG, out);
+        Log.i(TAG, smsFormatOut);
 
         if(!anyTicked) {
             Toast.makeText(MainActivity.this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
@@ -212,15 +215,18 @@ public class MainActivity extends AppCompatActivity {
 
             if(sp.contains(ENTRIES_CACHE_KEY)) {
                 //prepend existing data to what we'll write to SP
-                csvFormatLine = sp.getString(ENTRIES_CACHE_KEY, "") + "\n" + csvFormatLine;
+                csvFormatOut = sp.getString(ENTRIES_CACHE_KEY, "") + "\n" + csvFormatOut;
             }
             SharedPreferences.Editor editor = sp.edit();
-            editor.putString(ENTRIES_CACHE_KEY, csvFormatLine);
+            editor.putString(ENTRIES_CACHE_KEY, csvFormatOut);
             editor.apply();
 
             //save the entry to external storage
             String extState = Environment.getExternalStorageState();
-            if(Environment.MEDIA_MOUNTED.equals(extState)) {
+            if(!Environment.MEDIA_MOUNTED.equals(extState)) {
+                Log.e(TAG, "external storage is not in a writable state. Actual state: "+extState);
+            }
+            else {
                 File log = new File(storageDir, "DiabeticDiary.csv");
                 try {
                     boolean existed = log.exists();
@@ -243,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                         csvFile.println(s);
                     }
                     //file is now ready for writing to, either way
-                    csvFile.println(csvFormatLine);
+                    csvFile.println(csvFormatOut);
                     csvFile.close();
 
                     //if we haven't crapped out to the catch-block by now, the diskwrite must have succeeded
@@ -257,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+
             //text the entry to interested numbers
             //support runtime permission checks on android versions >= 6.0
             //if we're on android 6+ AND we haven't got location permissions yet, ask for them
@@ -264,10 +271,10 @@ public class MainActivity extends AppCompatActivity {
                     != PackageManager.PERMISSION_GRANTED) {
 
                 // todo: Show an explanation to the user *asynchronously*
-                waitingMessage = out;
+                waitingMessage = smsFormatOut;
                 requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
             } else {
-                sendSms(out);
+                sendSms(smsFormatOut);
             }
         }
     }
@@ -278,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
         newFragment.show(getSupportFragmentManager(), "DateTimePicker");
     }
 
-    private static void updateEntryTime(Button entryTimeButton) {
+    static void updateEntryTime(Button entryTimeButton) {
         if(entryTimeButton != null) {
             entryTimeButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
                     DateFormat.BRIEF_WITH_DAY));
@@ -383,42 +390,4 @@ public class MainActivity extends AppCompatActivity {
         return s.length() == 11 && s.startsWith("07");
     }
 
-    public static class DateTimePickerFragment extends DialogFragment {
-        private Calendar c = Calendar.getInstance();
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                                 @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.date_time_picker, container);
-
-            final TimePicker timePicker = (TimePicker)(view.findViewById(R.id.timePicker));
-            final DatePicker datePicker = (DatePicker)(view.findViewById(R.id.datePicker));
-
-            //disallow selection of dates in the future
-            datePicker.setMaxDate(System.currentTimeMillis());
-            timePicker.setIs24HourView(true);
-
-            //set pickers to instantOpened
-            c.setTimeInMillis(instantOpened);
-            datePicker.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-            timePicker.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
-            timePicker.setCurrentMinute(c.get(Calendar.MINUTE));
-
-            Button confirmButton = (Button)(view.findViewById(R.id.confirm_date_time));
-            confirmButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //alternative approach to updating entryTimeButton:
-                    //view.getRootView().findViewById(R.id.entry_time_button);
-
-                    c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
-                            timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                    instantOpened = c.getTimeInMillis();
-                    updateEntryTime((Button)getActivity().findViewById(R.id.entry_time_button));
-                    DateTimePickerFragment.this.dismiss();
-                }
-            });
-            return view;
-        }
-    }
 }
