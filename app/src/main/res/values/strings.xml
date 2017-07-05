@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Diabetic Diary</string>
+    <integer name="notes_max_length">70</integer>
 </resources>

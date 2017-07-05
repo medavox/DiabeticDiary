@@ -1,152 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.medavox.diabeticdiary.MainActivity">
 
 
-<ScrollView
-    android:layout_width="368dp"
-    android:layout_height="495dp"
-    tools:layout_editor_absoluteX="10dp"
-    tools:layout_editor_absoluteY="8dp">
-
-    <!-- all-things wrapper for scrollview -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ScrollView
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_width="match_parent">
 
-
-        <!-- 2 column container -->
-        <Button
-            android:id="@+id/entry_time_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button"/>
-
+        <!-- all-things wrapper for scrollview -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="8dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
+            <Button
+                android:id="@+id/entry_time_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Button"/>
 
-            <!-- checkbox column -->
+            <!-- 2 column container -->
             <LinearLayout
-                android:id="@+id/checkbox_column"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="8dp">
+
+
+                <!-- checkbox column -->
+                <LinearLayout
+                    android:id="@+id/checkbox_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <CheckBox
+                        android:id="@+id/BGcheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.16"
+                        android:checked="false"
+                        android:text="Blood Glucose"/>
+
+                    <CheckBox
+                        android:id="@+id/CPcheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.16"
+                        android:checked="false"
+                        android:text="Carb Portion"/>
+
+                    <CheckBox
+                        android:id="@+id/QAcheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.16"
+                        android:checked="false"
+                        android:text="Quick-Acting Insulin"/>
+
+                    <CheckBox
+                        android:id="@+id/BIcheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.16"
+                        android:checked="false"
+                        android:text="Background Insulin"/>
+
+                    <CheckBox
+                        android:id="@+id/KTcheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.16"
+                        android:checked="false"
+                        android:text="Ketones"/>
+
+                </LinearLayout>
+
+                <!-- data column -->
+                <LinearLayout
+                    android:id="@+id/data_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/BGinput"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="numberDecimal"/>
+
+                    <EditText
+                        android:id="@+id/CPinput"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="numberDecimal"/>
+
+                    <EditText
+                        android:id="@+id/QAinput"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="number"/>
+
+                    <EditText
+                        android:id="@+id/BIinput"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="number"/>
+
+                    <EditText
+                        android:id="@+id/KTinput"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="numberDecimal"/>
+
+
+                </LinearLayout>
+
+            </LinearLayout> <!-- end 2 column container -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="8dp">
 
                 <CheckBox
-                    android:id="@+id/BGcheckBox"
+                    android:id="@+id/notesCheckbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.16"
-                    android:checked="false"
-                    android:text="Blood Glucose"/>
+                    android:text="Notes"/>
 
-                <CheckBox
-                    android:id="@+id/CPcheckBox"
+
+                <EditText
+                    android:id="@+id/notesInput"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.16"
-                    android:checked="false"
-                    android:text="Carb Portion"/>
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="textFilter|textMultiLine"
+                    android:maxLength="@integer/notes_max_length"
+                    android:hint="70 chars max"
+                    />
 
-                <CheckBox
-                    android:id="@+id/QAcheckBox"
-                    android:layout_width="wrap_content"
+                <!--
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.16"
-                    android:checked="false"
-                    android:text="Quick-Acting Insulin"/>
-
-                <CheckBox
-                    android:id="@+id/BIcheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.16"
-                    android:checked="false"
-                    android:text="Background Insulin"/>
-
-                <CheckBox
-                    android:id="@+id/KTcheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.16"
-                    android:checked="false"
-                    android:text="Ketones"/>
-
+                    android:hint="Basic"
+                    app:met_baseColor="#ffffffff"
+                    app:met_primaryColor="#ff982360"
+                    app:met_errorColor="#ffddaa00"
+                    app:met_maxCharacters="60"
+                    /> -->
             </LinearLayout>
 
-            <!-- data column -->
-            <LinearLayout
-                android:id="@+id/data_column"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+            <Button
+                android:id="@+id/record_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Record"/>
 
-                <EditText
-                    android:id="@+id/BGinput"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="numberDecimal"/>
-
-                <EditText
-                    android:id="@+id/CPinput"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="numberDecimal"/>
-
-                <EditText
-                    android:id="@+id/QAinput"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="number"/>
-
-                <EditText
-                    android:id="@+id/BIinput"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="number"/>
-
-                <EditText
-                    android:id="@+id/KTinput"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="numberDecimal"/>
-
-            </LinearLayout>
-
-        </LinearLayout> <!-- end 2 column container -->
-
-        <Button
-            android:id="@+id/record_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Record"/>
-
-        <ListView
-            android:id="@+id/numbers_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </LinearLayout> <!-- end all-things wrapper for scrollview -->
-</ScrollView>
+        </LinearLayout> <!-- end all-things wrapper for scrollview -->
+    </ScrollView>
 </android.support.constraint.ConstraintLayout>

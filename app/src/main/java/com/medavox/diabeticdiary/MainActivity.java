@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,9 +45,10 @@ import butterknife.OnClick;
 
 import static com.medavox.util.io.DateTime.TimeFormat;
 import static com.medavox.util.io.DateTime.DateFormat;
+import static com.medavox.util.validate.Validator.check;
 
-//todo: import numberpicker module from https://github.com/SimonVT/android-numberpicker,
-//todo: then customise it to my needs
+//consider importing numberpicker module from https://github.com/SimonVT/android-numberpicker,
+//then customising it to my needs
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,12 +61,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int smsSendRequestCode = 42;
     private static final String TAG = "DiabeticDiary";
 
-    private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT"};
+    private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT", "NOTES"};
     private final int[] inputIDs = new int[] {R.id.BGinput, R.id.CPinput, R.id.QAinput, R.id.BIinput,
-            R.id.KTinput};
+            R.id.KTinput, R.id.notesInput};
     private final EditText[] inputs = new EditText[inputIDs.length];
     private final int[] checkboxIDs = new int[] {R.id.BGcheckBox, R.id.CPcheckBox, R.id.QAcheckBox,
-            R.id.BIcheckBox, R.id.KTcheckBox};
+            R.id.BIcheckBox, R.id.KTcheckBox, R.id.notesCheckbox};
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
     private String waitingMessage = null;
@@ -84,6 +84,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        //quick sanity check
+        try {
+            check(names.length == inputIDs.length && names.length == checkboxIDs.length,
+                    "the number of checkboxes, input fields and names don't match!");
+        }
+        catch(Exception e) {
+            Log.e(TAG, e.getLocalizedMessage());
+            System.exit(1);
+        }
+
         for(int i = 0; i < checkBoxes.length; i++) {
             checkBoxes[i] = (CheckBox)findViewById(checkboxIDs[i]);
         }
@@ -95,11 +105,8 @@ public class MainActivity extends AppCompatActivity {
             //tick the box when there's text in the input field, and untick it when there's not
             final CheckBox cb = checkBoxes[i];
             inputs[i].addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+                @Override public void beforeTextChanged(CharSequence c, int i, int j, int k){}
+                @Override public void onTextChanged(CharSequence c, int i, int j, int k){}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
@@ -129,14 +136,6 @@ public class MainActivity extends AppCompatActivity {
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         storageDir = Environment.getExternalStorageDirectory();
-    }
-
-    public int recalculateSmsLength() {
-        int length = 0;
-        for(int i = 0; i < inputs.length; i++) {
-            length += (checkBoxes[i].isChecked() ? names[i].length() + inputs[i].length() +3 : 0);
-        }
-        return length;
     }
 
     @Override
@@ -170,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit_numbers_menu_item:
-                //todo: show phone number entry dialog
                 DialogFragment newFragment = new EditNumbersDialogFragment();
                 newFragment.show(getSupportFragmentManager(), "EditNumbersDialog");
                 return true;
@@ -200,11 +198,17 @@ public class MainActivity extends AppCompatActivity {
             if(checkBoxes[i].isChecked()) {
                 anyTicked = true;
                 smsFormatOut += names[i]+":"+inputs[i].getText()+", ";
-                csvFormatOut += inputs[i].getText();
+                boolean isNotes = names[i].equals("NOTES");
+                csvFormatOut += (isNotes ? "\"" : "") + inputs[i].getText() + (isNotes?"\"":"");
             }
+        }
+        if(smsFormatOut.endsWith(", ")) {
+            smsFormatOut = smsFormatOut.substring(0, smsFormatOut.length()-2);
         }
         //csvFormatLine = csvFormatLine.substring(1);
         Log.i(TAG, smsFormatOut);
+        Log.i(TAG, "notes length:"+inputs[5].getText().length());
+        Log.i(TAG, "sms length:"+smsFormatOut.length());
 
         if(!anyTicked) {
             Toast.makeText(MainActivity.this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
@@ -389,5 +393,4 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isValidPhoneNumber(String s) {
         return s.length() == 11 && s.startsWith("07");
     }
-
 }
