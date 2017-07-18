@@ -7,4 +7,111 @@
     android:layout_height="match_parent"
     tools:context="com.medavox.diabeticdiary.ReviewEntriesActivity">
 
+
+    <ScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <!-- all-things wrapper for scrollview -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 2 column container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="8dp">
+
+
+                <!-- checkbox column -->
+                <LinearLayout
+                    android:id="@+id/checkbox_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/recent_qa_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/recent_qa_value"
+                        android:text="QA Taken in the last 4 hours:"/>
+
+                    <TextView
+                        android:id="@+id/recent_cp_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/recent_cp_value"
+                        android:text="CPs eaten in the last 4 hours:"/>
+
+                    <TextView
+                        android:id="@+id/last_bg_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/last_bg_value"
+                        android:text="Last BG reading:"/>
+
+                    <TextView
+                        android:id="@+id/cp_qa_swing_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/cp_qa_swing_value"
+                        android:text="(assuming 1:1 ratio) current CP-QA deficit-surplus:"/>
+
+                    <TextView
+                        android:id="@+id/predicted_bg_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/predicted_bg_value"
+                        android:text="predicted resting blood sugar:"/>
+
+                </LinearLayout>
+
+                <!-- data column -->
+                <LinearLayout
+                    android:id="@+id/data_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/recent_qa_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="QA Taken in the last 4 hours:"/>
+
+                    <TextView
+                        android:id="@+id/recent_cp_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CPs eaten in the last 4 hours:"/>
+
+                    <TextView
+                        android:id="@+id/last_bg_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Last BG reading:"/>
+
+                    <TextView
+                        android:id="@+id/cp_qa_swing_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(assuming 1:1 ratio) current CP-QA deficit-surplus:"/>
+
+                    <TextView
+                        android:id="@+id/predicted_bg_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="predicted resting blood sugar:"/>
+
+                </LinearLayout>
+            </LinearLayout> <!-- end 2 column container -->
+        </LinearLayout> <!-- end all-things wrapper for scrollview -->
+    </ScrollView>
+
+
+
 </android.support.constraint.ConstraintLayout>
