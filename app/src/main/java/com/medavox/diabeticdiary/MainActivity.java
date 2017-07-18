@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private String waitingMessage = null;
     static long instantOpened;
     private File storageDir;
+    public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
 
     //the timestamp , andevery field (excluding NOTES) at its max length, in the SMS format
     private static final int MAX_CHARS = 62;
@@ -143,16 +144,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         instantOpened  = System.currentTimeMillis();
         //clear all fields on resume, to prepare the app for a fresh entry
-        for(EditText et : inputs) {
-            if(et != null) {
-                et.setText("");
-            }
-        }
-        for(CheckBox cb : checkBoxes) {
-            if(cb != null) {
-                cb.setChecked(false);
-            }
-        }
+        clearInputs();
         inputs[0].requestFocus();
         updateEntryTime(entryTimeButton);
 
@@ -186,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
         //generate the csv-format log line, store it in SharePreferences,
         //then attempt to write it to external storage.
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
-        String csvFormatOut = sdf.format(new Date(instantOpened));
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
+        String csvFormatOut = csvDateFormat.format(new Date(instantOpened));
 
         //select which fields have been ticked
         String smsFormatOut = DateTime.get(instantOpened,
@@ -280,6 +272,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 sendSms(smsFormatOut);
             }
+
+            //clear the fields, ready for another entry
+            clearInputs();
         }
     }
 
@@ -322,8 +317,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         //if there are no permissions etc to process, return early.
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
@@ -373,6 +367,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void clearInputs() {
+        for(EditText et : inputs) {
+            if(et != null) {
+                et.setText("");
+            }
+        }
+        for(CheckBox cb : checkBoxes) {
+            if(cb != null) {
+                cb.setChecked(false);
+            }
+        }
+    }
+
     public static String stringsOf(Collection<Object> co) {
         String s = "[ ";
         for(Object o : co) {
@@ -389,8 +396,10 @@ public class MainActivity extends AppCompatActivity {
         return s+" ]";
     }
 
-    //todo: improve validation
+    //todo: improve validation to include international numbers
     public static boolean isValidPhoneNumber(String s) {
-        return s.length() == 11 && s.startsWith("07");
+        Pattern pati = Pattern.compile("(0|\\+44)7[0-9]{9}");
+        return pati.matcher(s).matches();
+        //return s.length() == 11 && s.startsWith("07");
     }
 }
