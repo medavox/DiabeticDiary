@@ -19,7 +19,7 @@ import static com.medavox.util.validate.Validator.check;
 public class Entry  extends RealmObject {
     private static final String TAG ="LogEntry";
 
-    @Required
+    //@Required
     private long timeOccurred;
     private float bg;
     private float cp;
