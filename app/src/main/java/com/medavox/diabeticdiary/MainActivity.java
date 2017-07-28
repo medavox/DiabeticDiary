@@ -284,6 +284,12 @@ public class MainActivity extends AppCompatActivity {
         newFragment.show(getSupportFragmentManager(), "DateTimePicker");
     }
 
+    @OnClick(R.id.reset_time_button)
+    public void resetTimeClick() {
+        instantOpened = System.currentTimeMillis();
+        updateEntryTime(entryTimeButton);
+    }
+
     static void updateEntryTime(Button entryTimeButton) {
         if(entryTimeButton != null) {
             entryTimeButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,

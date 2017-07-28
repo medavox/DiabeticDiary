@@ -38,35 +38,30 @@
                         android:id="@+id/recent_qa_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/recent_qa_value"
                         android:text="QA Taken in the last 4 hours:"/>
 
                     <TextView
                         android:id="@+id/recent_cp_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/recent_cp_value"
                         android:text="CPs eaten in the last 4 hours:"/>
 
                     <TextView
                         android:id="@+id/last_bg_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/last_bg_value"
                         android:text="Last BG reading:"/>
 
                     <TextView
                         android:id="@+id/cp_qa_swing_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/cp_qa_swing_value"
                         android:text="current CP-QA deficit-surplus:"/>
 
                     <TextView
                         android:id="@+id/predicted_bg_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/predicted_bg_value"
                         android:text="predicted resting blood sugar:"/>
 
                 </LinearLayout>
