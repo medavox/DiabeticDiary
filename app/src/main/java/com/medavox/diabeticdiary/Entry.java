@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Required;
@@ -27,6 +28,13 @@ public class Entry  extends RealmObject {
     private int bi;
     private float kt;
     private String notes;
+
+    private boolean hasBG;
+    private boolean hasCP;
+    private boolean hasQA;
+    private boolean hasBI;
+    private boolean hasKT;
+    private boolean hasNotes;
 
 
 
@@ -54,12 +62,11 @@ public class Entry  extends RealmObject {
                 "Number of strings:"+dateParts.length);
 
     }*/
-/*
+
     private Entry() {
         //validate the string for each entry
 
         //convert each string into a more appropriate format
-        //fixme: how do we tell which fields an Entry has data for?
     }
 
     public boolean hasBG() {
@@ -74,44 +81,62 @@ public class Entry  extends RealmObject {
     public static class Builder {
         private long time;
 
-        Map<String, String> fields = new HashMap<>();
+        String bg;
+        String cp;
+        String qa;
+        String bi;
+        String kt;
+        String notes;
+
 
         public Builder(long time) {
             this.time = time;
         }
         public Builder bg(String bg) {
-            fields.put("bg", bg);
+            this.bg = bg;
             return this;
         }
         public Builder cp(String cp){
             //validate that it's the right format
-            fields.put("cp", cp);
+            this.cp = cp;
             return this;
         }
 
         public Builder qa(String qa){
-            fields.put("qa", qa);
+            this.qa = qa;
             return this;
         }
 
         public Builder bi(String bi) {
-            fields.put("bi", bi);
+            this.bi = bi;
             return this;
         }
 
         public Builder kt(String kt) {
-            fields.put("kt", kt);
+            this.kt = kt;
             return this;
         }
 
         public Builder notes(String notes) {
-            fields.put("notes", notes);
+            this.notes = notes;
             return this;
         }
 
-        public Entry build() {
+        public Entry build() throws NumberFormatException {
             //validate all input field strings, then convert them to floats
+            Entry ret = new Entry();
+            ret.timeOccurred = time;
+            //validate and parse each one
+
+            ret.bg = Float.parseFloat(bg);
+        }
+
+        private boolean isValid(String input, int digitsBeforeZero, int digitsAfterZero) {
+            String decimalRegex = (digitsAfterZero == 0 ? "" : "\\.[0-9]{0," + digitsAfterZero + "}");
+            String pat="[0-9]{0,"+digitsBeforeZero+"}"+decimalRegex;
+            Pattern mPattern = Pattern.compile(pat);
+            return mPattern.matcher(input).matches();
+
         }
     }
-    */
 }
