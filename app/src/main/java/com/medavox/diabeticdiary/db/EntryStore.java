@@ -1,5 +1,9 @@
 package com.medavox.diabeticdiary.db;
 
+import com.medavox.diabeticdiary.db.entry.BloodGlucoseEntry;
+import com.medavox.diabeticdiary.db.entry.CarbPortionEntry;
+import com.medavox.diabeticdiary.db.entry.QuickActingEntry;
+
 /**
  * @author Adam Howard
  * @date 28/07/2017
