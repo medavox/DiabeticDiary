@@ -2,6 +2,7 @@ package com.medavox.diabeticdiary;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -165,7 +166,14 @@ public class MainActivity extends AppCompatActivity {
                 newFragment.show(getSupportFragmentManager(), "EditNumbersDialog");
                 return true;
             case R.id.review_entries_menu_item:
-                //todo: show log review screen
+                //todo
+                Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.status_report_menu_item:
+                startActivity(new Intent(this, StatusReportActivity.class));
+                return true;
+            case R.id.edit_last_entry_menu_item:
+                //todo
                 Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
                 return true;
             default:
