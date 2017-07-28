@@ -1,16 +1,13 @@
 package com.medavox.diabeticdiary;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -27,15 +24,7 @@ import android.widget.Toast;
 
 import com.medavox.util.io.DateTime;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.medavox.util.io.DateTime.TimeFormat;
 import static com.medavox.util.io.DateTime.DateFormat;
+import static com.medavox.util.io.DateTime.TimeFormat;
 import static com.medavox.util.validate.Validator.check;
 
 //consider importing numberpicker module from https://github.com/SimonVT/android-numberpicker,
@@ -54,7 +43,7 @@ import static com.medavox.util.validate.Validator.check;
 public class MainActivity extends AppCompatActivity {
 
     public static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
-    private static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
+    public static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
     public static final String SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients";
 
     @BindView(R.id.entry_time_button) Button entryTimeButton;
@@ -62,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int smsSendRequestCode = 42;
     private static final String TAG = "DiabeticDiary";
 
-    private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT", "NOTES"};
+
     private final int[] inputIDs = new int[] {R.id.BGinput, R.id.CPinput, R.id.QAinput, R.id.BIinput,
             R.id.KTinput, R.id.notesInput};
     private final EditText[] inputs = new EditText[inputIDs.length];
@@ -72,13 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
     private String waitingMessage = null;
     static long instantOpened;
-    private File storageDir;
-    public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
-
-    //the timestamp , andevery field (excluding NOTES) at its max length, in the SMS format
-    private static final int MAX_CHARS = 62;
-
-    //including ( NOTES:"<MSG>") makes 71
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         //quick sanity check
         try {
-            check(names.length == inputIDs.length && names.length == checkboxIDs.length,
-                    "the number of checkboxes, input fields and names don't match!");
+            check(inputIDs.length == checkboxIDs.length,
+                    "the number of checkboxes and input fields don't match!");
         }
         catch(Exception e) {
             Log.e(TAG, e.getLocalizedMessage());
@@ -107,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
             //tick the box when there's text in the input field, and untick it when there's not
             final CheckBox cb = checkBoxes[i];
             inputs[i].addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence c, int i, int j, int k){}
-                @Override public void onTextChanged(CharSequence c, int i, int j, int k){}
+                @Override public void beforeTextChanged(CharSequence c,int i,int j,int k){}
+                @Override public void onTextChanged(CharSequence c,int i,int j,int k){}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
@@ -134,10 +116,8 @@ public class MainActivity extends AppCompatActivity {
         //with BI, allow 3 digit integers. I used to take ~80, so it's not impossible
         inputs[3].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3,0)});
 
-        //for KT, I'd be very worried if ketones were > 9, but again it's not impossible
+        //for KT, I'd be very worried if ketones were > 9.9, but again it's not impossible
         inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
-
-        storageDir = Environment.getExternalStorageDirectory();
     }
 
     @Override
@@ -183,107 +163,38 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.record_button)
     public void clickRecordButton() {
-        //generate the csv-format log line, store it in SharePreferences,
-        //then attempt to write it to external storage.
-
-        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
-        String csvFormatOut = csvDateFormat.format(new Date(instantOpened));
-
-        //select which fields have been ticked
-        String smsFormatOut = DateTime.get(instantOpened,
-                DateTime.TimeFormat.MINUTES, DateFormat.BRIEF_WITH_DAY)+": ";
         boolean anyTicked = false;
         for(int i = 0; i < checkBoxes.length; i++) {
-            csvFormatOut += ",";
             if(checkBoxes[i].isChecked()) {
                 anyTicked = true;
-                smsFormatOut += names[i]+":"+inputs[i].getText()+", ";
-                boolean isNotes = names[i].equals("NOTES");
-                csvFormatOut += (isNotes ? "\"" : "") + inputs[i].getText() + (isNotes?"\"":"");
             }
         }
-        if(smsFormatOut.endsWith(", ")) {
-            smsFormatOut = smsFormatOut.substring(0, smsFormatOut.length()-2);
-        }
-        //csvFormatLine = csvFormatLine.substring(1);
-        Log.i(TAG, smsFormatOut);
-        Log.i(TAG, "notes length:"+inputs[5].getText().length());
-        Log.i(TAG, "sms length:"+smsFormatOut.length());
 
         if(!anyTicked) {
-            Toast.makeText(MainActivity.this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No inputs ticked!", Toast.LENGTH_SHORT).show();
+            return;
         }
-        else {
-            //first cache the entry in SharedPreferences before attempting a disk write
-            SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
 
-            if(sp.contains(ENTRIES_CACHE_KEY)) {
-                //prepend existing data to what we'll write to SP
-                csvFormatOut = sp.getString(ENTRIES_CACHE_KEY, "") + "\n" + csvFormatOut;
-            }
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(ENTRIES_CACHE_KEY, csvFormatOut);
-            editor.apply();
+        //first cache the entry in SharedPreferences before attempting any writes
 
-            //save the entry to external storage
-            String extState = Environment.getExternalStorageState();
-            if(!Environment.MEDIA_MOUNTED.equals(extState)) {
-                Log.e(TAG, "external storage is not in a writable state. Actual state: "+extState);
-            }
-            else {
-                File log = new File(storageDir, "DiabeticDiary.csv");
-                try {
-                    boolean existed = log.exists();
-                    if(!existed) {
-                        Log.d(TAG, "csv file does not exist, creating it...");
-                        if (!log.createNewFile()) {
-                            throw new IOException("File.createNewFile returned false for \"" + log + "\"");
-                        }
-                    }
-                    FileOutputStream fos = new FileOutputStream(log, /*append*/true);
-                    PrintStream csvFile = new PrintStream(fos);
+        //check which if any datasinks failed to write last time, and get the entry that failed
 
-                    if(!existed) {
-                        //write CSV header
-                        String s = "DATETIME";
-                        for (String t : names) {
-                            s += ","+t;
-                        }
-                        //s = s.substring(1);
-                        csvFile.println(s);
-                    }
-                    //file is now ready for writing to, either way
-                    csvFile.println(csvFormatOut);
-                    csvFile.close();
+        //make an extra write() call for the previously failed datasinks, along with this new data
 
-                    //if we haven't crapped out to the catch-block by now, the diskwrite must have succeeded
-                    //so delete the cached entries in SP
-                    editor.remove(ENTRIES_CACHE_KEY);
-                    editor.apply();
-                }
-                catch(IOException ioe) {
-                    Log.e(TAG, "failed to create file \""+log+"\"; reason: "
-                            +ioe.getLocalizedMessage());
-                }
-            }
+        //... call write() for all datasinks, on this new data
 
+        //for any that failed (returned false), write their toString() to the string array in SharedPrefs,
+        //and a copy of the data
 
-            //text the entry to interested numbers
-            //support runtime permission checks on android versions >= 6.0
-            //if we're on android 6+ AND we haven't got location permissions yet, ask for them
-            if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.SEND_SMS)
-                    != PackageManager.PERMISSION_GRANTED) {
+        //first cache the entry in SharedPreferences before attempting a disk write
+        SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
 
-                // todo: Show an explanation to the user *asynchronously*
-                waitingMessage = smsFormatOut;
-                requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
-            } else {
-                sendSms(smsFormatOut);
-            }
-
-            //clear the fields, ready for another entry
-            clearInputs();
+        if(sp.contains(ENTRIES_CACHE_KEY)) {
         }
+        SharedPreferences.Editor editor = sp.edit();
+
+        //clear the UI fields, ready for another entry
+        clearInputs();
     }
 
     @OnClick(R.id.entry_time_button)
@@ -337,11 +248,9 @@ public class MainActivity extends AppCompatActivity {
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
         if(permissions.length != 1 || grantResults.length != 1) {
             Log.e(TAG, "Got weird permissions results. Permissions length:"+permissions.length+
-            "; Grant results length: "+grantResults.length);
+            "; Grant results length: "+grantResults.length+";  permissions:"+stringsOf(permissions));
             return;
         }
-        Log.i(TAG, "permissions results length:" + permissions.length);
-
 
         Log.i(TAG, "permission \"" + permissions[0] + "\" result: " + grantResults[0]);
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -360,9 +269,8 @@ public class MainActivity extends AppCompatActivity {
     /**Sends the text to all interested phone numbers*/
     private void sendSms(String message) {
         SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
-        Set<String> defaultNumbers = new LinkedHashSet<>(0);
-        Set<String> recipients = sp.getStringSet(SMS_RECIPIENTS_KEY, defaultNumbers);
-        if(recipients.size() > 0) {
+        Set<String> recipients = sp.getStringSet(SMS_RECIPIENTS_KEY, null);
+        if(recipients != null && recipients.size() > 0) {
             for(String number : recipients) {
                 if(isValidPhoneNumber(number)) {
                     SmsManager.getDefault().sendTextMessage(number, null, message, null, null);

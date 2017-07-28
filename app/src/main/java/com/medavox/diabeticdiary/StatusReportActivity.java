@@ -2,6 +2,7 @@ package com.medavox.diabeticdiary;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -10,6 +11,7 @@ import com.medavox.diabeticdiary.db.entry.BloodGlucoseEntry;
 import com.medavox.util.io.DateTime;
 
 public class StatusReportActivity extends AppCompatActivity {
+    private final static String TAG = "StatusReportActivity";
     private TextView recentQA;
     private TextView recentCP;
     private TextView lastBG;
@@ -32,8 +34,10 @@ public class StatusReportActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         BloodGlucoseEntry bg = entries.getLastBG();
+        Log.i(TAG, "bloodGlucose is null:"+(bg==null));
         if(bg != null) {
-            lastBG.setText(bg.getBloodGlucose() + " at " + DateTime.get(bg.getTime(), DateTime.TimeFormat.MINUTES));
+            String thag = bg.getBloodGlucose() + " at " + DateTime.get(bg.getTime(), DateTime.TimeFormat.MINUTES);
+            lastBG.setText(thag);
         }
     }
 }
