@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.medavox.diabeticdiary.MainActivity;
 import com.medavox.util.io.DateTime;
+
+import java.util.Set;
 
 /**
  * @author Adam Howard
@@ -17,12 +20,37 @@ import com.medavox.util.io.DateTime;
  */
 
 public class SmsWriter implements DataSink {
+    private static final int smsSendRequestCode = 42;
     private MainActivity owner;
     public SmsWriter(MainActivity activity) {
         this.owner = activity;
     }
     private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT", "NOTES"};
     private final static String TAG = "SMS_Writer";
+
+    /**Sends the text to all interested phone numbers*/
+    public void sendSms(String message) {
+        SharedPreferences sp = owner.getSharedPreferences(MainActivity.SP_KEY, Context.MODE_PRIVATE);
+        Set<String> recipients = sp.getStringSet(MainActivity.SMS_RECIPIENTS_KEY, null);
+        if(recipients != null && recipients.size() > 0) {
+            for(String number : recipients) {
+                if(MainActivity.isValidPhoneNumber(number)) {
+                    SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
+                }
+                else {
+                    Log.e(TAG, "invalid phone number \""+number+"\" in SharedPreferences");
+                }
+            }
+
+            Toast.makeText(owner, "SMS sent:\"" + message + "\"",
+                    Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(owner, "No recipients set for SMS entry sending",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     //todo:move runtime permissions code from MainActivity to this class
     public boolean write(Context c, long time, String[] dataValues) {
@@ -51,9 +79,10 @@ public class SmsWriter implements DataSink {
 
             // todo: Show an explanation to the user *asynchronously*
             owner.waitingMessage = smsFormatOut;
-            owner.requestPermissions(new String[]{Manifest.permission.SEND_SMS}, owner.smsSendRequestCode);
+            owner.requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
         } else {
-            owner.sendSms(smsFormatOut);
+            sendSms(smsFormatOut);
         }
+        return true;
     }
 }

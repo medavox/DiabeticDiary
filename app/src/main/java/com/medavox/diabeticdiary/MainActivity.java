@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -22,10 +21,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.medavox.diabeticdiary.writers.CsvWriter;
+import com.medavox.diabeticdiary.writers.DataSink;
+import com.medavox.diabeticdiary.writers.SmsWriter;
 import com.medavox.util.io.DateTime;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.entry_time_button) Button entryTimeButton;
 
-    private static final int smsSendRequestCode = 42;
     private static final String TAG = "DiabeticDiary";
 
 
@@ -59,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
             R.id.BIcheckBox, R.id.KTcheckBox, R.id.notesCheckbox};
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
-    private String waitingMessage = null;
+    public String waitingMessage = null;
     static long instantOpened;
+    private static SmsWriter smsWriter;
+    private static DataSink[] outputs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, e.getLocalizedMessage());
             System.exit(1);
         }
+
+        //initialise writer modules
+        smsWriter = new SmsWriter(this);
+        outputs = new DataSink[]{new CsvWriter(), smsWriter};
+
 
         for(int i = 0; i < checkBoxes.length; i++) {
             checkBoxes[i] = (CheckBox)findViewById(checkboxIDs[i]);
@@ -175,6 +182,19 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        boolean[] results = new boolean[outputs.length];
+        for(int i = 0; i < results.length; i++) {
+            String[] values = new String[inputs.length];
+            for(int j = 0; j < inputs.length; j++)
+            if(checkBoxes[i].isChecked()) {
+                values[j] = inputs[j].getText().toString();
+            }
+            else {
+                values[j] = null;
+            }
+            results[i] = outputs[i].write(this, instantOpened, values);
+        }
+
         //first cache the entry in SharedPreferences before attempting any writes
 
         //check which if any datasinks failed to write last time, and get the entry that failed
@@ -241,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //i really wish i could put this method in SmsWriter
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -256,36 +277,13 @@ public class MainActivity extends AppCompatActivity {
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //if there was a message due to go out when we had to ask permission, send it now
             if(waitingMessage != null) {
-                sendSms(waitingMessage);
+                smsWriter.sendSms(waitingMessage);
                 waitingMessage = null;
             }
         }
         else {
             Toast.makeText(this, "Permission Refused!", Toast.LENGTH_SHORT).show();
             //permission refused
-        }
-    }
-
-    /**Sends the text to all interested phone numbers*/
-    private void sendSms(String message) {
-        SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
-        Set<String> recipients = sp.getStringSet(SMS_RECIPIENTS_KEY, null);
-        if(recipients != null && recipients.size() > 0) {
-            for(String number : recipients) {
-                if(isValidPhoneNumber(number)) {
-                    SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
-                }
-                else {
-                    Log.e(TAG, "invalid phone number \""+number+"\" in SharedPreferences");
-                }
-            }
-
-            Toast.makeText(MainActivity.this, "SMS sent:\"" + message + "\"",
-                    Toast.LENGTH_LONG).show();
-        }
-        else {
-            Toast.makeText(MainActivity.this, "No recipients set for SMS entry sending",
-                    Toast.LENGTH_LONG).show();
         }
     }
 
