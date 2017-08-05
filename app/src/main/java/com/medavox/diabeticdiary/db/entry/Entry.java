@@ -33,8 +33,11 @@ abstract class Entry {
         return time;
     }
 
-    boolean isValid(String input, int digitsBeforeZero, int digitsAfterZero) {
-        String decimalRegex = (digitsAfterZero == 0 ? "" : "\\.[0-9]{0," + digitsAfterZero + "}");
+    //Sqlite stores floats with a 0 decimal part (eg 5.0) without it (eg as "5").
+    //todo:in order to account for this when creating Entry subclasses from rows,
+    //allow for a missing decimal part
+    static boolean isValid(String input, int digitsBeforeZero, int digitsAfterZero) {
+        String decimalRegex = (digitsAfterZero == 0 ? "" : "(\\.[0-9]{0," + digitsAfterZero + "})?");
         String pat = "[0-9]{0," + digitsBeforeZero + "}" + decimalRegex;
         Pattern mPattern = Pattern.compile(pat);
         return mPattern.matcher(input).matches();

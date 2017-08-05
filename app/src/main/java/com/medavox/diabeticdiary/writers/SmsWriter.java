@@ -14,11 +14,8 @@ import com.medavox.util.io.DateTime;
 
 import java.util.Set;
 
-/**
- * @author Adam Howard
- * @date 28/07/2017
- */
-
+/** @author Adam Howard
+ * @date 28/07/2017 */
 public class SmsWriter implements DataSink {
     private static final int smsSendRequestCode = 42;
     private MainActivity owner;
@@ -52,9 +49,7 @@ public class SmsWriter implements DataSink {
     }
 
     @Override
-    //todo:move runtime permissions code from MainActivity to this class
     public boolean write(Context c, long time, String[] dataValues) {
-
         //select which fields have been ticked
         String smsFormatOut = DateTime.get(time,
                 DateTime.TimeFormat.MINUTES, DateTime.DateFormat.BRIEF_WITH_DAY)+": ";
@@ -67,9 +62,11 @@ public class SmsWriter implements DataSink {
             smsFormatOut = smsFormatOut.substring(0, smsFormatOut.length()-2);
         }
         //csvFormatLine = csvFormatLine.substring(1);
-        Log.i(TAG, smsFormatOut);
-        Log.i(TAG, "notes length:"+dataValues[5].length());
+        if(dataValues[5] != null ) {
+            Log.i(TAG, "notes length:"+dataValues[5].length());
+        }
         Log.i(TAG, "sms length:"+smsFormatOut.length());
+        Log.i(TAG, "sms message: \""+smsFormatOut+"\"");
 
         //text the entry to interested numbers
         //support runtime permission checks on android versions >= 6.0
@@ -78,7 +75,7 @@ public class SmsWriter implements DataSink {
                 != PackageManager.PERMISSION_GRANTED) {
 
             // todo: Show an explanation to the user *asynchronously*
-            owner.waitingMessage = smsFormatOut;
+            owner.pendingTextMessage = smsFormatOut;
             owner.requestPermissions(new String[]{Manifest.permission.SEND_SMS}, smsSendRequestCode);
         } else {
             sendSms(smsFormatOut);

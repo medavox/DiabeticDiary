@@ -16,25 +16,25 @@ import com.medavox.diabeticdiary.db.entry.QuickActingEntry;
  * @date 28/07/2017
  */
 
-public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
+public class EntryDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     //This is one of the reasons I hate sql databases. So many constants
-    private static final String COLUMN_TIME = "event_time";
+    public static final String COLUMN_TIME = "event_time";
     
-    private static final String COLUMN_BG = "blood_glucose";
-    private static final String COLUMN_CP = "carb_portion";
-    private static final String COLUMN_QA = "quick_acting";
-    private static final String COLUMN_BI = "background_insulin";
-    private static final String COLUMN_KT = "ketones";
-    private static final String COLUMN_NOTES = "notes";
+    public static final String COLUMN_BG = "blood_glucose";
+    public static final String COLUMN_CP = "carb_portion";
+    public static final String COLUMN_QA = "quick_acting";
+    public static final String COLUMN_BI = "background_insulin";
+    public static final String COLUMN_KT = "ketones";
+    public static final String COLUMN_NOTES = "notes";
     
-    private static final String TABLE_BG = "bg_table";
-    private static final String TABLE_CP = "cp_table";
-    private static final String TABLE_QA = "qa_table";
-    private static final String TABLE_BI = "bi_table";
-    private static final String TABLE_KT = "kt_table";
-    private static final String TABLE_NOTES = "notes_table";
+    public static final String TABLE_BG = "bg_table";
+    public static final String TABLE_CP = "cp_table";
+    public static final String TABLE_QA = "qa_table";
+    public static final String TABLE_BI = "bi_table";
+    public static final String TABLE_KT = "kt_table";
+    public static final String TABLE_NOTES = "notes_table";
 
     private static final String CONSTRAINT_BG = " REAL UNSIGNED";
     private static final String CONSTRAINT_CP = " REAL UNSIGNED";
@@ -44,10 +44,15 @@ public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
     //varchar lengths aren't enforced in sqlite, so there's no point defining it
     private static final String CONSTRAINT_NOTES = " TEXT";
 
+    private static SQLiteDatabase readableDB;
+    private static SQLiteDatabase writableDB;
+    private static SQLiteOpenHelper instance;
+
+    private static final String TAG = "EntryDatabase";
     
-    private final static String[] tableNames = new String[]{TABLE_BG, TABLE_CP, TABLE_QA, TABLE_BI,
+    public final static String[] tableNames = new String[]{TABLE_BG, TABLE_CP, TABLE_QA, TABLE_BI,
             TABLE_KT, TABLE_NOTES};
-    private static final String[] columnNames = new String[]{COLUMN_BG, COLUMN_CP, COLUMN_QA,
+    public static final String[] columnNames = new String[]{COLUMN_BG, COLUMN_CP, COLUMN_QA,
             COLUMN_BI, COLUMN_KT, COLUMN_NOTES};
     private static final String[] constraints = new String[]{CONSTRAINT_BG, CONSTRAINT_CP,
             CONSTRAINT_QA, CONSTRAINT_BI, CONSTRAINT_KT, CONSTRAINT_NOTES};
@@ -55,14 +60,18 @@ public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
 
     public EntryDatabase(Context c) {
         super(c, "DiabeticDiaryEntries", null, DATABASE_VERSION);
-
+        instance = this;
     }
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         for(int i = 0; i < tableNames.length; i++) {
             String query = "CREATE TABLE IF NOT EXISTS " + tableNames[i]
                     + "(" + COLUMN_TIME + " INTEGER PRIMARY KEY NOT NULL UNIQUE, "
-                    + columnNames[i] + constraints[i] + " not null"
+                    //no constraints anymore:
+                    //better validation is done earlier in the chain,
+                    //and having a uniform interface to adding different fields allows us
+// to use array-access when adding rows: the same for-loop can add data to any table
+                    + columnNames[i] /*+ constraints[i]*/ + " not null"
                     +  ");";
             sqLiteDatabase.compileStatement(query).execute();
         }
@@ -75,10 +84,32 @@ public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
         //when implementing, don't just delete the old tables (and all their data!), like with medi.
     }
 
-    @Override
-    public QuickActingEntry[] getRecentQA() {
+    @Nullable
+    public static SQLiteDatabase getReadableDB() {
+        if(readableDB == null) {
+            if(instance != null) {
+                readableDB = instance.getReadableDatabase();
+            }
+            //maybe do something else if instance is also null?
+        }
+        return readableDB;
+    }
+
+    @Nullable
+    public static SQLiteDatabase getWritableDB() {
+        if(writableDB == null) {
+            if(instance != null) {
+                writableDB = instance.getWritableDatabase();
+            }
+            //maybe do something else if instance is also null?
+        }
+        return writableDB;
+    }
+
+
+    public static QuickActingEntry[] getRecentQA(SQLiteDatabase db) {
         long fourHoursFiveMinutesAgo = System.currentTimeMillis() - ((4 * 3600 * 1000) + (5 * 60000));
-        Cursor recentQA = getReadableDatabase().query(TABLE_QA, null,
+        Cursor recentQA = db.query(TABLE_QA, null,
                 COLUMN_TIME+" > "+fourHoursFiveMinutesAgo, null, null, null, COLUMN_TIME+" ASC");
         if(recentQA == null || recentQA.getCount() == 0) {
             return new QuickActingEntry[]{};
@@ -94,10 +125,9 @@ public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
         return flob;
     }
 
-    @Override
-    public CarbPortionEntry[] getRecentCP() {
+    public static CarbPortionEntry[] getRecentCP(SQLiteDatabase db) {
         long fourHoursFiveMinutesAgo = System.currentTimeMillis() - ((4 * 3600 * 1000) + (5 * 60000));
-        Cursor recentCP = getReadableDatabase().query(TABLE_CP, null,
+        Cursor recentCP = db.query(TABLE_CP, null,
                 COLUMN_TIME+" > "+fourHoursFiveMinutesAgo, null, null, null, COLUMN_TIME+" ASC");
         if(recentCP == null || recentCP.getCount() == 0) {
             return new CarbPortionEntry[]{};
@@ -114,16 +144,21 @@ public class EntryDatabase extends SQLiteOpenHelper implements EntryStore {
     }
 
     @Nullable
-    @Override
-    public BloodGlucoseEntry getLastBG() {
-        Cursor recentQA = getReadableDatabase().query(TABLE_BG, null,
-                null, null, null, null, COLUMN_TIME+" DESC");
-        if(recentQA == null || recentQA.getCount() == 0) {
+    public static BloodGlucoseEntry getLastBG(SQLiteDatabase db) {
+        Cursor lastBG = db.query(TABLE_BG,
+                null,
+                null,
+                null,
+                null,
+                null,
+                COLUMN_TIME+" DESC");
+        Log.i(TAG, "last BG cursor length:"+lastBG.getCount());
+        if(lastBG == null || lastBG.getCount() == 0) {
             return null;
         }
-        int timeColumn = recentQA.getColumnIndex(COLUMN_TIME);
-        int bg = recentQA.getColumnIndex(COLUMN_BG);
-        recentQA.moveToFirst();
-        return new BloodGlucoseEntry(recentQA.getString(bg), recentQA.getLong(timeColumn));
+        int timeColumn = lastBG.getColumnIndex(COLUMN_TIME);
+        int bg = lastBG.getColumnIndex(COLUMN_BG);
+        lastBG.moveToFirst();
+        return new BloodGlucoseEntry(lastBG.getString(bg), lastBG.getLong(timeColumn));
     }
 }

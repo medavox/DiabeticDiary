@@ -2,7 +2,7 @@ TODO
 ====
 
 * Edit Last Entry button in the menu
-* Also store log entries in SQLite. Not Realm: the company which makes it is pushing its new product too much, 
+* Also store log entries in SQLite. Not Realm: the company which makes it is pushing its new product too hard,
 will probably disappear/get bought out soon
 	- use 1 table per entry-field, each table with two columns: eventTime:long, and the entry content
 	- write a conversion method to parse and convert CSV data

@@ -21,11 +21,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.medavox.diabeticdiary.db.EntryDatabase;
 import com.medavox.diabeticdiary.writers.CsvWriter;
 import com.medavox.diabeticdiary.writers.DataSink;
 import com.medavox.diabeticdiary.writers.SmsWriter;
+import com.medavox.diabeticdiary.writers.SqliteWriter;
 import com.medavox.util.io.DateTime;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,10 +62,11 @@ public class MainActivity extends AppCompatActivity {
             R.id.BIcheckBox, R.id.KTcheckBox, R.id.notesCheckbox};
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
-    public String waitingMessage = null;
+    public String pendingTextMessage = null;
     static long instantOpened;
     private static SmsWriter smsWriter;
     private static DataSink[] outputs;
+    private static EntryDatabase entryDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,9 +84,11 @@ public class MainActivity extends AppCompatActivity {
             System.exit(1);
         }
 
+        entryDB = new EntryDatabase(this);
+
         //initialise writer modules
         smsWriter = new SmsWriter(this);
-        outputs = new DataSink[]{new CsvWriter(), smsWriter};
+        outputs = new DataSink[]{new CsvWriter(), smsWriter, new SqliteWriter()};
 
 
         for(int i = 0; i < checkBoxes.length; i++) {
@@ -182,16 +188,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        boolean[] results = new boolean[outputs.length];
-        for(int i = 0; i < results.length; i++) {
-            String[] values = new String[inputs.length];
-            for(int j = 0; j < inputs.length; j++)
-            if(checkBoxes[i].isChecked()) {
+        String[] values = new String[inputs.length];
+        for(int j = 0; j < inputs.length; j++) {
+            if (checkBoxes[j].isChecked()) {
                 values[j] = inputs[j].getText().toString();
-            }
-            else {
+            } else {
                 values[j] = null;
             }
+        }
+
+        boolean[] results = new boolean[outputs.length];
+        for(int i = 0; i < results.length; i++) {
+
             results[i] = outputs[i].write(this, instantOpened, values);
         }
 
@@ -269,16 +277,16 @@ public class MainActivity extends AppCompatActivity {
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
         if(permissions.length != 1 || grantResults.length != 1) {
             Log.e(TAG, "Got weird permissions results. Permissions length:"+permissions.length+
-            "; Grant results length: "+grantResults.length+";  permissions:"+stringsOf(permissions));
+            "; Grant results length: "+grantResults.length+";  permissions:"+ Arrays.toString(permissions));
             return;
         }
 
         Log.i(TAG, "permission \"" + permissions[0] + "\" result: " + grantResults[0]);
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //if there was a message due to go out when we had to ask permission, send it now
-            if(waitingMessage != null) {
-                smsWriter.sendSms(waitingMessage);
-                waitingMessage = null;
+            if(pendingTextMessage != null) {
+                smsWriter.sendSms(pendingTextMessage);
+                pendingTextMessage = null;
             }
         }
         else {
@@ -298,22 +306,6 @@ public class MainActivity extends AppCompatActivity {
                 cb.setChecked(false);
             }
         }
-    }
-
-    public static String stringsOf(Collection<Object> co) {
-        String s = "[ ";
-        for(Object o : co) {
-            s += o.toString()+"; ";
-        }
-        return s+" ]";
-    }
-
-    public static String stringsOf(Object[] array) {
-        String s = "[ ";
-        for(int i = 0; i < array.length; i++) {
-            s += array[i].toString()+"; ";
-        }
-        return s+" ]";
     }
 
     //todo: improve validation to include international numbers
