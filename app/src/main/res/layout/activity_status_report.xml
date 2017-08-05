@@ -38,13 +38,13 @@
                         android:id="@+id/recent_qa_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="QA Taken in the last 4 hours:"/>
+                        android:text="total QA Taken in the last 4 hours:"/>
 
                     <TextView
                         android:id="@+id/recent_cp_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CPs eaten in the last 4 hours:"/>
+                        android:text="total CPs eaten in the last 4 hours:"/>
 
                     <TextView
                         android:id="@+id/last_bg_label"

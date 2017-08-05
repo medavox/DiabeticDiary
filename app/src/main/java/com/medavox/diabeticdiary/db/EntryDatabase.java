@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -106,7 +107,7 @@ public class EntryDatabase extends SQLiteOpenHelper {
         return writableDB;
     }
 
-
+    @NonNull
     public static QuickActingEntry[] getRecentQA(SQLiteDatabase db) {
         long fourHoursFiveMinutesAgo = System.currentTimeMillis() - ((4 * 3600 * 1000) + (5 * 60000));
         Cursor recentQA = db.query(TABLE_QA, null,
@@ -118,13 +119,15 @@ public class EntryDatabase extends SQLiteOpenHelper {
         int i = 0;
         int timeColumn = recentQA.getColumnIndex(COLUMN_TIME);
         int qaColumn = recentQA.getColumnIndex(COLUMN_QA);
-        for(recentQA.moveToFirst(); recentQA.isAfterLast(); recentQA.moveToNext()) {
+        for(recentQA.moveToFirst(); !recentQA.isAfterLast(); recentQA.moveToNext()) {
             flob[i] = new QuickActingEntry(recentQA.getString(qaColumn), recentQA.getLong(timeColumn));
             i++;
         }
+        recentQA.close();
         return flob;
     }
 
+    @NonNull
     public static CarbPortionEntry[] getRecentCP(SQLiteDatabase db) {
         long fourHoursFiveMinutesAgo = System.currentTimeMillis() - ((4 * 3600 * 1000) + (5 * 60000));
         Cursor recentCP = db.query(TABLE_CP, null,
@@ -136,10 +139,11 @@ public class EntryDatabase extends SQLiteOpenHelper {
         int i = 0;
         int time = recentCP.getColumnIndex(COLUMN_TIME);
         int cp = recentCP.getColumnIndex(COLUMN_CP);
-        for(recentCP.moveToFirst(); recentCP.isAfterLast(); recentCP.moveToNext()) {
+        for(recentCP.moveToFirst(); !recentCP.isAfterLast(); recentCP.moveToNext()) {
             flob[i] = new CarbPortionEntry(recentCP.getString(cp), recentCP.getLong(time));
             i++;
         }
+        recentCP.close();
         return flob;
     }
 
@@ -159,6 +163,9 @@ public class EntryDatabase extends SQLiteOpenHelper {
         int timeColumn = lastBG.getColumnIndex(COLUMN_TIME);
         int bg = lastBG.getColumnIndex(COLUMN_BG);
         lastBG.moveToFirst();
-        return new BloodGlucoseEntry(lastBG.getString(bg), lastBG.getLong(timeColumn));
+        BloodGlucoseEntry bge = new BloodGlucoseEntry(lastBG.getString(bg),
+                lastBG.getLong(timeColumn));
+        lastBG.close();
+        return bge;
     }
 }

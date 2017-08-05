@@ -48,8 +48,41 @@ public class SmsWriter implements DataSink {
         }
     }
 
+    private class CooldownBuncher {
+        public boolean hasDataToSend = false;
+        public String[] bunchedDataValues;
+
+    }
+
+    /**bunches entries together that occur soon after each other(adds together numeric values),
+     * and sends them after a certain time without any further new entries has passed*/
     @Override
     public boolean write(Context c, long time, String[] dataValues) {
+        return actualWrite(c,  time, dataValues);
+        //todo:
+        //regularly check (in another thread) if the time of the last entry is > (30?) seconds ago
+        //if/when it is, send the bunched, combined message
+
+        //meanwhile, whenever new data comes in:
+            //set time of last entry to this entry time/method call time
+            //(how do we account for the time it coming in (time the method was called)
+            // being different from the entry time?)
+            //(also, if the very first entry in this 'chain' is more than 5 minutes ago,
+            //send now, anyway)
+
+            //add the latest entry's data to the bunched data:
+
+                //if the Notes field is  present, and the bunchedData already has a notes field:
+                    //send the bunchedData immediately without this latest entry,
+                    //and start a new bunch for this latest entry
+                //else:
+                    //for all the numeric fields (bg,cp,qa,bi,kt), add the value to the running total
+
+    }
+
+    private long timeOfLastEntry;
+
+    public boolean actualWrite(Context c, long time, String[] dataValues) {
         //select which fields have been ticked
         String smsFormatOut = DateTime.get(time,
                 DateTime.TimeFormat.MINUTES, DateTime.DateFormat.BRIEF_WITH_DAY)+": ";
