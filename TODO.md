@@ -7,11 +7,6 @@ will probably disappear/get bought out soon
 	- use 1 table per entry-field, each table with two columns: eventTime:long, and the entry content
 	- write a conversion method to parse and convert CSV data
 * Create a Log Review screen, which displays the ~5 most recent entries
-* Status Report activity
-	- total daily insulin dosage
-	- mealtime CP:QA ratio settings (editable)
-	- week average this week, last week
-		* where 'this week' is the last 7 days, and 'last week' is the 7 days before that
 * meal CP calculator
 	- add ingredients, each with weight and carb per 100g
 	- gives you the carb per 100g of the combination of ingredients
@@ -19,12 +14,22 @@ will probably disappear/get bought out soon
 * For the Edit Numbers Dialog:
 	- set a max number of recipients (5?), to prevent our app from being accused of spamming by the android watchdogs
 	- add confirmation dialog when deleting numbers by long-tapping them
-* add a button to reset the time value to Now - alongside the time display/button
+* Status Report activity
+	- total daily insulin dosage
+	- mealtime CP:QA ratio settings (editable)
+	- week average this week, last week
+		* where 'this week' is the last 7 days, and 'last week' is the 7 days before that
+	- hypos in the last 7 days
+	- last BI dosage
+	- next BI dosage (editable)
+
+
 
 
 Done
 ===
 
+* add a button to reset the time value to Now - alongside the time display/button
 * Make the entry-time editable
 * Store entries locally
 	- probably in a file

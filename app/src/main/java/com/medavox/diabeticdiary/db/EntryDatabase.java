@@ -161,10 +161,20 @@ public class EntryDatabase extends SQLiteOpenHelper {
             return null;
         }
         int timeColumn = lastBG.getColumnIndex(COLUMN_TIME);
-        int bg = lastBG.getColumnIndex(COLUMN_BG);
+        int bgColumn = lastBG.getColumnIndex(COLUMN_BG);
         lastBG.moveToFirst();
-        BloodGlucoseEntry bge = new BloodGlucoseEntry(lastBG.getString(bg),
-                lastBG.getLong(timeColumn));
+        BloodGlucoseEntry bge = null;
+        //keep trying to find the recent BG entry that is valid, until we run out
+        while(!lastBG.isAfterLast()) {
+            try {
+                bge = new BloodGlucoseEntry(lastBG.getString(bgColumn), lastBG.getLong(timeColumn));
+                break;
+            }
+            catch(NumberFormatException nfe) {
+                lastBG.moveToNext();
+                continue;
+            }
+        }
         lastBG.close();
         return bge;
     }

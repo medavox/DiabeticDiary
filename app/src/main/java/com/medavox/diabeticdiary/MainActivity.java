@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         instantOpened  = System.currentTimeMillis();
         //clear all fields on resume, to prepare the app for a fresh entry
-        clearInputs();
+        //clearInputs();
         inputs[0].requestFocus();
         updateEntryTime(entryTimeButton);
 

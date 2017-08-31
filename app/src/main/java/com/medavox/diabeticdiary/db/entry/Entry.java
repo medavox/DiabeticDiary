@@ -1,5 +1,7 @@
 package com.medavox.diabeticdiary.db.entry;
 
+import android.util.Log;
+
 import com.medavox.util.io.DateTime;
 
 import java.util.regex.Pattern;
@@ -23,7 +25,7 @@ abstract class Entry {
         String niceTime = DateTime.get(time, DateTime.TimeFormat.MINUTES);
         if (time < DIABETIC_EPOCH) {
             throw new NumberFormatException("Entry time is too far in the past:" + niceTime);
-        } else if (time > System.currentTimeMillis() + 1000) {
+        } else if (time > (System.currentTimeMillis() + 1000)) {
             throw new NumberFormatException("Entry time cannot be in the future:" + niceTime);
         }
         this.time = time;
