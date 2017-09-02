@@ -5,14 +5,14 @@
               android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/carb_ingredient_item_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="10"
-        android:text="TextView"/>
+        android:text=""/>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/remove_carb_ingredient_button"
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

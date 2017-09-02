@@ -72,7 +72,6 @@ public class EditNumbersDialogFragment extends DialogFragment {
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                //this is terrible, todo: fix it
                 String editBoxContents = editBox.getText().toString();
                 if (!MainActivity.isValidPhoneNumber(editBoxContents)) {
                     Toast.makeText(getActivity(), "Entered text is not a valid British mobile phone number.",

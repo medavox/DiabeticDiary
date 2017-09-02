@@ -29,7 +29,6 @@ import com.medavox.diabeticdiary.writers.SqliteWriter;
 import com.medavox.util.io.DateTime;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.carb_calculator_menu_item:
-                startActivity(new Intent(this, IngredientCarbCalculator.class));
+                startActivity(new Intent(this, CarbCalculatorActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

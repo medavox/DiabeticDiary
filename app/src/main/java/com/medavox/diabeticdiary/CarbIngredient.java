@@ -36,4 +36,9 @@ public class CarbIngredient {
     public int getPercentCarb() {
         return percentCarb;
     }
+
+    @Override
+    public String toString() {
+        return "CarbIngredient ["+(name == null ?  "" : "\""+name+"\" ")+grams+"g, "+percentCarb+"%]";
+    }
 }

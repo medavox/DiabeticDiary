@@ -1,55 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.medavox.diabeticdiary.CarbCalculatorActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.medavox.diabeticdiary.IngredientCarbCalculator">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <EditText
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/ingredient_grams_edit_box"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:inputType="phone"
+            android:layout_height="wrap_content"
+            android:inputType="number"
             android:maxLines="1"
             android:maxLength="15"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:text="grams of food, at "/>
 
         <EditText
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/ingredient_carb_precent_edit_box"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:inputType="phone"
+            android:layout_height="wrap_content"
+            android:inputType="number"
             android:maxLines="1"
             android:maxLength="15"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:text="% carbohydrate"/>
 
         <Button
             android:id="@+id/add_ingredient_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="+"/>
 
     </LinearLayout>
@@ -58,13 +52,5 @@
         android:id="@+id/ingredients_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2"/>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
-
-    </ScrollView>
-
-</android.support.constraint.ConstraintLayout>
+        />
+</LinearLayout>

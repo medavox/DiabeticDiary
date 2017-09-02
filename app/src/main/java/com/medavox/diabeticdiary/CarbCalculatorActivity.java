@@ -14,14 +14,10 @@ import android.widget.Toast;
 import com.medavox.util.validate.Validator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static com.medavox.diabeticdiary.EditNumbersDialogFragment.stringsOf;
 
-public class IngredientCarbCalculator extends AppCompatActivity {
-
+public class CarbCalculatorActivity extends AppCompatActivity {
     private static final String TAG = "IngredientsCarbCalc";
 
     @Override
@@ -29,17 +25,16 @@ public class IngredientCarbCalculator extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ingredient_carb_calculator);
 
-        final ArrayAdapter<CarbIngredient> ingredientsAdapter = new ArrayAdapter<>(this,
-                R.layout.ingredient_list_item, new ArrayList<CarbIngredient>());
-        Log.i(TAG, "ingredientsAdapter length:" + ingredientsAdapter.getCount() +
-                "; contents (including loaded SharedPrefs data):" + stringsOf(ingredientsAdapter));
+        final IngredientsListAdapter ingredientsAdapter = new IngredientsListAdapter(this);
+        //Log.i(TAG, "ingredientsAdapter length:" + ingredientsAdapter.getCount() +
+        //        "; contents (including loaded SharedPrefs data):" + stringsOf(ingredientsAdapter));
 
-        final ListView listView = (ListView) findViewById(R.id.ingredients_list);
+        ListView listView = (ListView) findViewById(R.id.ingredients_list);
         Button addButton = (Button) findViewById(R.id.add_ingredient_button);
 
         listView.setAdapter(ingredientsAdapter);
 
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long rowId) {
 
@@ -47,13 +42,13 @@ public class IngredientCarbCalculator extends AppCompatActivity {
                 a.remove(a.getItem(pos));
                 return true;
             }
-        });
+        });*/
 
         final EditText gramsBox = (EditText) findViewById(R.id.ingredient_grams_edit_box);
         final EditText carbPercentBox = (EditText) findViewById(R.id.ingredient_carb_precent_edit_box);
+        final ListView listy = listView;
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-
                 String gramsString = gramsBox.getText().toString();
                 String carbPercentString = carbPercentBox.getText().toString();
                 int grams;
@@ -73,15 +68,14 @@ public class IngredientCarbCalculator extends AppCompatActivity {
                     else {
                         errorMessage = nfe.getMessage();
                     }
-                    Toast.makeText(IngredientCarbCalculator.this, errorMessage, Toast.LENGTH_LONG)
+                    Toast.makeText(CarbCalculatorActivity.this, errorMessage, Toast.LENGTH_LONG)
                             .show();
                     return;
                 }
-
                 ingredientsAdapter.add(new CarbIngredient(grams, percent));
+                listy.invalidate();
                 Log.i(TAG, "add pressed; new adapter length:" + ingredientsAdapter.getCount() +
                         "; contents: " + stringsOf(ingredientsAdapter));
-                //numbersAdapter.notifyDataSetChanged();
             }
         });
     }
