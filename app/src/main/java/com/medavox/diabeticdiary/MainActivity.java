@@ -158,16 +158,19 @@ public class MainActivity extends AppCompatActivity {
                 DialogFragment newFragment = new EditNumbersDialogFragment();
                 newFragment.show(getSupportFragmentManager(), "EditNumbersDialog");
                 return true;
-            case R.id.review_entries_menu_item:
+            /*case R.id.review_entries_menu_item:
                 //todo
                 Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
-                return true;
+                return true;*/
             case R.id.status_report_menu_item:
                 startActivity(new Intent(this, StatusReportActivity.class));
                 return true;
             case R.id.edit_last_entry_menu_item:
                 //todo
                 Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.carb_calculator_menu_item:
+                startActivity(new Intent(this, IngredientCarbCalculator.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

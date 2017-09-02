@@ -9,15 +9,22 @@
         android:title="Status Report"
         android:visible="true"/>
     <item
+        android:id="@+id/carb_calculator_menu_item"
+        android:checkable="false"
+        android:enabled="true"
+        android:title="Carb Calculator"
+        android:visible="true"/>
+
+    <!-- <item
         android:id="@+id/review_entries_menu_item"
         android:checkable="false"
         android:enabled="true"
         android:title="Review Entries"
-        android:visible="true"/>
+        android:visible="true"/> -->
     <item
         android:id="@+id/edit_last_entry_menu_item"
         android:checkable="false"
-        android:enabled="true"
+        android:enabled="false"
         android:title="Edit Last Entry"
         android:visible="true"/>
     <item

@@ -29,7 +29,7 @@ import java.util.Set;
 public class EditNumbersDialogFragment extends DialogFragment {
     private static final String TAG = "EditNumbersDialog";
 
-    private static String stringsOf(Adapter adapter) {
+    public static String stringsOf(Adapter adapter) {
         String s = "[ ";
         for(int i = 0; i < adapter.getCount(); i++) {
             s += adapter.getItem(i).toString()+"; ";

@@ -16,12 +16,13 @@ will probably disappear/get bought out soon
 	- add confirmation dialog when deleting numbers by long-tapping them
 * Status Report activity
 	- total daily insulin dosage
+	- injections per day
 	- mealtime CP:QA ratio settings (editable)
+	- next BI dosage (editable)
 	- week average this week, last week
 		* where 'this week' is the last 7 days, and 'last week' is the 7 days before that
 	- hypos in the last 7 days
 	- last BI dosage
-	- next BI dosage (editable)
 
 
 
