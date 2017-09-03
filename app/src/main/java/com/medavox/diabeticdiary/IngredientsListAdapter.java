@@ -38,6 +38,11 @@ public class IngredientsListAdapter extends BaseAdapter implements Closeable {
         notifyDataSetChanged();
     }
 
+    public void remove(int i) {
+        items.remove(i);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         //Log.i(TAG, "getCount() called, returning "+items.size());
@@ -58,7 +63,7 @@ public class IngredientsListAdapter extends BaseAdapter implements Closeable {
     }
 
     @Override
-    public View getView(int i, View convertView, ViewGroup parent) {
+    public View getView(final int i, View convertView, ViewGroup parent) {
         //Log.i(TAG, "getView("+i+", "+convertView+", "+parent+") called");
         if(i <  0 || i >= items.size()) {
             return null;
@@ -75,6 +80,11 @@ public class IngredientsListAdapter extends BaseAdapter implements Closeable {
         CarbIngredient ci = items.get(i);
         display.setText(ci.getGrams()+"g of food at "+ci.getPercentCarb()+"% carb = "+(((float)ci.getCPx1000())/1000)+" CP");
         //removeButton.setOnClickListener();
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                remove(i);//can't believe how easy it was getting the index of the view that had its remove button clicked
+                //we just use the parameter of this enclosing method! brilliant!
+            }});
         return view;
     }
 
