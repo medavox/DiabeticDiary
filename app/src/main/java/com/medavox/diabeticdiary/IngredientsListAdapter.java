@@ -73,7 +73,7 @@ public class IngredientsListAdapter extends BaseAdapter implements Closeable {
         TextView display = (TextView)view.findViewById(R.id.carb_ingredient_item_text_view);
         Button removeButton = (Button)view.findViewById(R.id.remove_carb_ingredient_button);
         CarbIngredient ci = items.get(i);
-        display.setText(ci.getGrams()+"g of food at "+ci.getPercentCarb()+"% carb");
+        display.setText(ci.getGrams()+"g of food at "+ci.getPercentCarb()+"% carb = "+(((float)ci.getCPx1000())/1000)+" CP");
         //removeButton.setOnClickListener();
         return view;
     }

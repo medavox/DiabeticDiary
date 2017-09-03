@@ -24,6 +24,11 @@ public class CarbIngredient {
         this.percentCarb = percentCarb;
     }
 
+    /**Calculate and return the total CP in this ingredient*/
+    public int getCPx1000() {
+        return percentCarb * grams;
+    }
+
     @Nullable
     public String getName() {
         return name;

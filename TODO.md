@@ -1,6 +1,6 @@
 TODO
 ====
-
+* store CP values in SQL db as grams (*10), to avoid floating-point rounding errors
 * Edit Last Entry button in the menu
 * Also store log entries in SQLite. Not Realm: the company which makes it is pushing its new product too hard,
 will probably disappear/get bought out soon

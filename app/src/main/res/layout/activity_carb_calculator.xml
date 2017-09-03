@@ -13,13 +13,16 @@
         android:orientation="horizontal">
 
         <EditText
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/ingredient_grams_edit_box"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
             android:inputType="number"
+            android:maxLength="10"
             android:maxLines="1"
-            android:maxLength="15"/>
+            android:ems="2"
+            android:textAlignment="viewEnd"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,24 +30,29 @@
             android:text="grams of food, at "/>
 
         <EditText
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/ingredient_carb_precent_edit_box"
-            android:layout_width="match_parent"
+            android:id="@+id/ingredient_carb_percent_edit_box"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
             android:inputType="number"
+            android:maxLength="10"
             android:maxLines="1"
-            android:maxLength="15"/>
+            android:ems="2"
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="% carbohydrate"/>
+            android:text="% carbohydrate"
+            />
 
         <Button
             android:id="@+id/add_ingredient_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+"/>
+            android:text="+"
+            />
 
     </LinearLayout>
 
@@ -52,5 +60,23 @@
         android:id="@+id/ingredients_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="2"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="0"
+        android:background="@color/yupDarkOrange"
+        android:backgroundTint="@color/yupDarkOrange"
+        android:orientation="vertical"/>
+
+    <TextView
+        android:id="@+id/total_carb_reading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="Total:"
+        android:textAlignment="center"/>
+
 </LinearLayout>
