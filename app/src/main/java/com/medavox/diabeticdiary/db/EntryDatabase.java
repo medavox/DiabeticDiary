@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.medavox.diabeticdiary.db.entry.BackgroundInsulinEntry;
 import com.medavox.diabeticdiary.db.entry.BloodGlucoseEntry;
 import com.medavox.diabeticdiary.db.entry.CarbPortionEntry;
 import com.medavox.diabeticdiary.db.entry.QuickActingEntry;
@@ -156,7 +157,7 @@ public class EntryDatabase extends SQLiteOpenHelper {
                 null,
                 null,
                 COLUMN_TIME+" DESC");
-        Log.i(TAG, "last BG cursor length:"+lastBG.getCount());
+        Log.i(TAG, "last BG cursor length:"+(lastBG == null ? "<null>" : lastBG.getCount()));
         if(lastBG == null || lastBG.getCount() == 0) {
             return null;
         }
@@ -164,18 +165,57 @@ public class EntryDatabase extends SQLiteOpenHelper {
         int bgColumn = lastBG.getColumnIndex(COLUMN_BG);
         lastBG.moveToFirst();
         BloodGlucoseEntry bge = null;
-        //keep trying to find the recent BG entry that is valid, until we run out
         while(!lastBG.isAfterLast()) {
             try {
                 bge = new BloodGlucoseEntry(lastBG.getString(bgColumn), lastBG.getLong(timeColumn));
                 break;
             }
+            //keep trying to find the most recent BG entry that is valid, until we run out
             catch(NumberFormatException nfe) {
+                Log.e(TAG, "Sqlite data is invalid -- new BloodGlucoseEntry(\""
+                        +lastBG.getString(bgColumn)+"\", "+lastBG.getLong(timeColumn)+
+                        ")  produces \""+nfe.getLocalizedMessage()+"\". Trying next row...");
                 lastBG.moveToNext();
                 continue;
             }
         }
         lastBG.close();
         return bge;
+    }
+
+
+    @Nullable
+    public static BackgroundInsulinEntry getLastBI(SQLiteDatabase db) {
+        Cursor lastBI = db.query(TABLE_BI,
+                null,
+                null,
+                null,
+                null,
+                null,
+                COLUMN_TIME+" DESC");
+        Log.i(TAG, "last BI cursor length:"+(lastBI == null ? "<null>" : lastBI.getCount()));
+        if(lastBI == null || lastBI.getCount() == 0) {
+            return null;
+        }
+        int timeColumn = lastBI.getColumnIndex(COLUMN_TIME);
+        int biColumn = lastBI.getColumnIndex(COLUMN_BI);
+        lastBI.moveToFirst();
+        BackgroundInsulinEntry bie = null;
+        while(!lastBI.isAfterLast()) {
+            try {
+                bie = new BackgroundInsulinEntry(lastBI.getString(biColumn), lastBI.getLong(timeColumn));
+                break;
+            }
+            //keep trying to find the most recent BI entry that is valid, until we run out
+            catch(NumberFormatException nfe) {
+                Log.e(TAG, "Sqlite data is invalid -- new BackgroundInsulinEntry(\""
+                        +lastBI.getString(biColumn)+"\", "+lastBI.getLong(timeColumn)+
+                        ")  produces \""+nfe.getLocalizedMessage()+"\". Trying next row...");
+                lastBI.moveToNext();
+                continue;
+            }
+        }
+        lastBI.close();
+        return bie;
     }
 }
