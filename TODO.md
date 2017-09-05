@@ -16,7 +16,8 @@ TODO
 	- week average this week, last week
 		* where 'this week' is the last 7 days, and 'last week' is the 7 days before that
 	- hypos in the last 7 days
-	- last BI dosage
+	- last BI dosage - actually this needs to be BI in the last 24 hours, 
+	in case people take overlapping doses 12 hours apart, or reconsider a lower dosage and top it up with a few units
 	- better layout/styling
 
 bugfixes

@@ -68,7 +68,7 @@ public class StatusReportActivity extends AppCompatActivity {
         QuickActingEntry[] qa = EntryDatabase.getRecentQA(EntryDatabase.getReadableDB());
         Log.i(TAG, "cp entries:"+qa.length);
         if(qa.length > 0) {
-            float total =  0;
+            int total =  0;
             for(QuickActingEntry cpe : qa) {
                 total += cpe.getQuickActing();
             }

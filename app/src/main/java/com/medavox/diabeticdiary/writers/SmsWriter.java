@@ -124,7 +124,8 @@ public class SmsWriter implements DataSink {
     }
 
     /**bunches entries together that occur soon after each other(adds together numeric values),
-     * and sends them after a certain time without any further new entries has passed*/
+     * and sends them after a certain time without any further new entries has passed.
+     * Entries within 2 minutes of each other with combinable data will be sent as one message*/
     @Override
     public boolean write(Context c, long time, String[] dataValues) {
         //make sure this new incoming data is timestamped to nowish

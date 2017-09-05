@@ -25,7 +25,6 @@
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="8dp">
 
-
                 <!-- checkbox column -->
                 <LinearLayout
                     android:id="@+id/labels_column"
@@ -58,11 +57,16 @@
                         android:text="current CP-QA deficit-surplus:"/>
 
                     <TextView
+                        android:id="@+id/recent_bi_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="BI taken in the last 24 hours:"/>
+
+                    <!--<TextView
                         android:id="@+id/predicted_bg_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="predicted resting blood sugar:"/>
-
+                        android:text="predicted resting blood sugar:"/> -->
                 </LinearLayout>
 
                 <!-- data column -->
@@ -91,11 +95,14 @@
                         android:id="@+id/cp_qa_swing_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
-
                     <TextView
-                        android:id="@+id/predicted_bg_value"
+                        android:id="@+id/recent_bi_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
+                    <!-- <TextView
+                        android:id="@+id/predicted_bg_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/> -->
 
                 </LinearLayout>
             </LinearLayout> <!-- end 2 column container -->
