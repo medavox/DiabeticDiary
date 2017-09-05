@@ -5,13 +5,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.medavox.diabeticdiary.MainActivity;
 import com.medavox.util.io.DateTime;
+import com.medavox.util.validate.Validator;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /** @author Adam Howard
@@ -19,11 +23,28 @@ import java.util.Set;
 public class SmsWriter implements DataSink {
     private static final int smsSendRequestCode = 42;
     private MainActivity owner;
+    private Handler mHandler;
+    /**The time to wait until sending bunched data*/
+    //private static final int SMS_BUNCH_DELAY = 2 * 60 * 1000;//2 minutes
+    private static final int SMS_BUNCH_DELAY = 20 * 1000;//debug: 20 seconds
+    /**The time which data must be within now, for it to be bunched*/
+    private static final int RECENCY_WINDOW = 50000;
     public SmsWriter(MainActivity activity) {
         this.owner = activity;
+
+        //initialise handler, for use in timeouts
+        HandlerThread handThread = new HandlerThread("BLE operations");
+        handThread.start();
+        mHandler = new Handler(handThread.getLooper());
     }
     private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT", "NOTES"};
     private final static String TAG = "SMS_Writer";
+
+    //mutable instance variables
+    private boolean waitingToSend = false;
+    private String[] bunchedValues = new String[names.length];
+    private long bunchedTimeSum = 0;
+    private int numberOfEntriesBunched = 0;
 
     /**Sends the text to all interested phone numbers*/
     public void sendSms(String message) {
@@ -48,17 +69,101 @@ public class SmsWriter implements DataSink {
         }
     }
 
-    private class CooldownBuncher {
-        public boolean hasDataToSend = false;
-        public String[] bunchedDataValues;
+    public void addToBunchedValues(String[] newData) {
+        if(newData.length != names.length || newData.length != bunchedValues.length) {
+            Log.e(TAG, "String[] passed to SmsWriter.addToBunchedValues() was of incorrect length!" +
+                    " expected length: "+bunchedValues.length+"; actual length: "+newData.length+
+            "; passed String[] contents: "+Arrays.toString(newData));
+            return;
+        }
+        for(int i = 0; i < newData.length; i++) {
+            if(newData[i] != null) {
+                if(bunchedValues[i] == null) {
+                    bunchedValues[i] = newData[i];
+                }
+                else {
+                    //both the new and incumbent have data for this field,
+                    //so we're going to have to combine them numerically (add their number values)
+                    try {
+                        double incumbentValue = Double.parseDouble(bunchedValues[i]);
+                        double newValue = Double.parseDouble(newData[i]);
+                        bunchedValues[i] = ""+(incumbentValue+newValue);
+                    }
+                    catch (NumberFormatException  nfe) {
+                        Log.e(TAG, "error while adding strings \""+bunchedValues[i]+"\" and \""+
+                                newData[i]+"\" as numbers: "+nfe.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+    }
 
+    /**If BG, KT or notes has data in both the new and bunched entries,
+     * we can't combine them and should send the new data immediately.
+     * Otherwise, we can just add CP, QA and BI readings together numerically*/
+    private boolean newDataClashesWithBunched(String[] dataValues) {
+        try {
+            return checkFieldsClash(dataValues, 0) ||
+                    checkFieldsClash(dataValues, 4) ||
+                    checkFieldsClash(dataValues, 5);
+        }
+        catch(Exception e) {
+            Log.e(TAG, "somehow got an error: "+e.getLocalizedMessage());
+        }
+        return false;//shouldn't ever get here, but I don't want this exception bubbling up
+        //and crashing the whole app/inconveniencing higher-level code with handling it,
+        //if it does. It's only meant to be a sanity check!
+    }
+
+    private boolean checkFieldsClash(String[] dataValues, int index) throws Exception {
+        Validator.check(index >= 0 && index < dataValues.length,
+                "index must be in range of String[]. Index value: "+index+"; String[] length: "+
+        dataValues.length);
+        return (bunchedValues[index] != null
+                && dataValues[index] != null);
     }
 
     /**bunches entries together that occur soon after each other(adds together numeric values),
      * and sends them after a certain time without any further new entries has passed*/
     @Override
     public boolean write(Context c, long time, String[] dataValues) {
-        return actualWrite(c,  time, dataValues);
+        //make sure this new incoming data is timestamped to nowish
+        //don't want to bunch posthumously written data, and mess up its time
+        long timeDifference = Math.abs(System.currentTimeMillis() - time);
+        if(timeDifference > RECENCY_WINDOW) {
+            Log.w(TAG, "timeDifference: "+timeDifference+"; sending new data immediately...");
+            return actualWrite(c,  time, dataValues);
+        }
+        //if the notes field in this new data isn't null,
+        // and we already have data for the notes field saved in bunched values,
+        // send now
+
+        if(newDataClashesWithBunched(dataValues)) {
+            Log.w(TAG, "fields in old and new data clash, sending new data immediately...");
+            return actualWrite(c, time, dataValues);
+        }
+        //otherwise, do sms data bunching
+        if(!waitingToSend) {
+            Log.i(TAG, "waiting to send SMS for "+DateTime.getDuration(SMS_BUNCH_DELAY)+
+                    ", in case more data comes in");
+            final Context ctx = c;
+            mHandler.postDelayed(new Runnable() {
+                @Override public void run() {
+                    //use a time value which is an  average of all the bunched values' times
+                    actualWrite(ctx, bunchedTimeSum/numberOfEntriesBunched, bunchedValues);
+                    //reset everything
+                    bunchedTimeSum = 0;
+                    numberOfEntriesBunched = 0;
+                    waitingToSend = false;
+                }
+            }, SMS_BUNCH_DELAY);
+            waitingToSend = true;
+        }
+        addToBunchedValues(dataValues);
+        numberOfEntriesBunched++;
+        bunchedTimeSum += time;
+        Log.i(TAG, "Bunched values now: "+Arrays.toString(bunchedValues));
+        return true;
         //todo:
         //regularly check (in another thread) if the time of the last entry is > (30?) seconds ago
         //if/when it is, send the bunched, combined message
