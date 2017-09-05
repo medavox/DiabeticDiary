@@ -22,7 +22,7 @@ import java.util.Locale;
  */
 
 public class CsvWriter implements DataSink {
-    public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.UK);
+    public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.UK);
     private static final String TAG = "CSV-Writer";
     @Override
     public boolean write(Context c, long time, String[] dataValues) {
