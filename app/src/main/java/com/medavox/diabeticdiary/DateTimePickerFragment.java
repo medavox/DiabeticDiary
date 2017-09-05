@@ -32,8 +32,8 @@ public class DateTimePickerFragment extends DialogFragment {
         datePicker.setMaxDate(System.currentTimeMillis());
         timePicker.setIs24HourView(true);
 
-        //set pickers to instantOpened
-        c.setTimeInMillis(MainActivity.instantOpened);
+        //set pickers to eventInstant
+        c.setTimeInMillis(MainActivity.eventInstant);
         datePicker.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         timePicker.setCurrentHour(c.get(Calendar.HOUR_OF_DAY));
         timePicker.setCurrentMinute(c.get(Calendar.MINUTE));
@@ -47,7 +47,7 @@ public class DateTimePickerFragment extends DialogFragment {
 
                 c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
                         timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                MainActivity.instantOpened = c.getTimeInMillis();
+                MainActivity.eventInstant = c.getTimeInMillis();
                 MainActivity.updateEntryTime((Button) getActivity().findViewById(R.id.entry_time_button));
                 DateTimePickerFragment.this.dismiss();
             }

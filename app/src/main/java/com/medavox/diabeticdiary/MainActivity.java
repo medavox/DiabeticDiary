@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "DiabeticDiary";
 
-
     private final int[] inputIDs = new int[] {R.id.BGinput, R.id.CPinput, R.id.QAinput, R.id.BIinput,
             R.id.KTinput, R.id.notesInput};
     private final EditText[] inputs = new EditText[inputIDs.length];
@@ -61,8 +60,10 @@ public class MainActivity extends AppCompatActivity {
             R.id.BIcheckBox, R.id.KTcheckBox, R.id.notesCheckbox};
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
+    /**Remembers the SMS message we want to send, when we need to ask permisson first*/
     public String pendingTextMessage = null;
-    static long instantOpened;
+    /**The moment in time that the entry has occured*/
+    static long eventInstant;
     private static SmsWriter smsWriter;
     private static DataSink[] outputs;
     private static EntryDatabase entryDB;
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        instantOpened  = System.currentTimeMillis();
+        eventInstant = System.currentTimeMillis();
         //clear all fields on resume, to prepare the app for a fresh entry
         //clearInputs();
         inputs[0].requestFocus();
@@ -202,15 +203,12 @@ public class MainActivity extends AppCompatActivity {
         boolean[] results = new boolean[outputs.length];
         for(int i = 0; i < results.length; i++) {
 
-            results[i] = outputs[i].write(this, instantOpened, values);
+            results[i] = outputs[i].write(this, eventInstant, values);
         }
 
         //first cache the entry in SharedPreferences before attempting any writes
-
         //check which if any datasinks failed to write last time, and get the entry that failed
-
         //make an extra write() call for the previously failed datasinks, along with this new data
-
         //... call write() for all datasinks, on this new data
 
         //for any that failed (returned false), write their toString() to the string array in SharedPrefs,
@@ -225,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
 
         //clear the UI fields, ready for another entry
         clearInputs();
+
+        eventInstant++;//add 1ms to the event time, to prevent repeated entry times crashing sqlite
     }
 
     @OnClick(R.id.entry_time_button)
@@ -235,13 +235,13 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.reset_time_button)
     public void resetTimeClick() {
-        instantOpened = System.currentTimeMillis();
+        eventInstant = System.currentTimeMillis();
         updateEntryTime(entryTimeButton);
     }
 
     static void updateEntryTime(Button entryTimeButton) {
         if(entryTimeButton != null) {
-            entryTimeButton.setText("At " + DateTime.get(instantOpened, TimeFormat.MINUTES,
+            entryTimeButton.setText("At " + DateTime.get(eventInstant, TimeFormat.MINUTES,
                     DateFormat.BRIEF_WITH_DAY));
         }
         else {
