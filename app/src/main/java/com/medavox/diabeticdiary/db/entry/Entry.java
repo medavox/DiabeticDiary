@@ -1,7 +1,5 @@
 package com.medavox.diabeticdiary.db.entry;
 
-import android.util.Log;
-
 import com.medavox.util.io.DateTime;
 
 import java.util.regex.Pattern;
