@@ -19,6 +19,35 @@ TODO
 	- last BI dosage - actually this needs to be BI in the last 24 hours, 
 	in case people take overlapping doses 12 hours apart, or reconsider a lower dosage and top it up with a few units
 	- better layout/styling
+* improve cooldown bunching algorithm
+	- there's a MAXIMUM_EXTENSION, which is the maximum amount of time since the first entry, before we must send.
+		This can be longer than the SMS_BUNCH_DELAY, because TEXTS will often be sent sooner than this maximum,
+		so the only thing limiting the maximum time is the staleness of the earliet entry(s),
+		and the corresponding inaccuracy of the single timestamp.
+		= 300 seconds (5 minutes)
+	- also COOLDOWN_TIME, which is the longest we'll wait to send, without any new data. 
+	This makes it the minimum time before a text is sent (usually, except for clashes), 
+	so it should be a bit shorter than SMS_BUNCH_DELAY,
+	but still long enough that we have enough time to chain a few entries.
+	= 30seconds
+	- So every time we receive data,
+		if the new data doesn't clash with any existing bunched data,
+		or if the new data's timestamp isn't within RECENCY_WINDOW seconds of now,
+			we store the data in the bunched values.
+		otherwise,
+			we send the new data immediately.
+
+		if there's already data queued,
+			if the time extension would put us past TIME_OF_EARLIEST_BUNCHED_DATA + MAXIMUM_EXTENSION,
+				then extend to TIME_OF_EARLIEST_BUNCHED_DATA + MAXIMUM_EXTENSION.
+				Or if the sendTime is already == TIME_OF_EARLIEST_BUNCHED_DATA + MAXIMUM_EXTENSION,
+					do nothing
+			otherwise,
+				we extend the time-till-send to COOLDOWN_TIME seconds from now,
+		otherwise,
+			we start the timer thread thing, to run COOLDOWN_TIME seconds from now
+
+
 
 bugfixes
 ----

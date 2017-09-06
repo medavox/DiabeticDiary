@@ -26,7 +26,7 @@ public class SmsWriter implements DataSink {
     private Handler mHandler;
     /**The time to wait until sending bunched data*/
     //private static final int SMS_BUNCH_DELAY = 2 * 60 * 1000;//2 minutes
-    private static final int SMS_BUNCH_DELAY = 20 * 1000;//debug: 20 seconds
+    private static final int SMS_BUNCH_DELAY = 30 * 1000;//debug: 20 seconds
     /**The time which data must be within now, for it to be bunched*/
     private static final int RECENCY_WINDOW = 50000;
     public SmsWriter(MainActivity activity) {
