@@ -156,6 +156,7 @@ public class SmsWriter implements DataSink {
                     bunchedTimeSum = 0;
                     numberOfEntriesBunched = 0;
                     waitingToSend = false;
+                    bunchedValues = new String[names.length];
                 }
             }, SMS_BUNCH_DELAY);
             waitingToSend = true;
