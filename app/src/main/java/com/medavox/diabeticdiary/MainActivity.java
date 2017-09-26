@@ -44,7 +44,6 @@ import static com.medavox.util.validate.Validator.check;
 //then customising it to my needs
 
 public class MainActivity extends AppCompatActivity {
-
     public static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
     public static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
     public static final String SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients";
@@ -67,6 +66,13 @@ public class MainActivity extends AppCompatActivity {
     private static SmsWriter smsWriter;
     private static DataSink[] outputs;
     private static EntryDatabase entryDB;
+
+    public static final int INDEX_BG = 0;
+    public static final int INDEX_CP = 1;
+    public static final int INDEX_QA = 2;
+    public static final int INDEX_BI = 3;
+    public static final int INDEX_KT = 4;
+    public static final int INDEX_NOTES = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +105,13 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < inputs.length; i++) {
             inputs[i]  = (EditText) findViewById(inputIDs[i]);
 
-            //tick the box when there's text in the input field, and untick it when there's not
             final CheckBox cb = checkBoxes[i];
+            final int index = i;
             inputs[i].addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence c,int i,int j,int k){}
                 @Override public void onTextChanged(CharSequence c,int i,int j,int k){}
 
+                //tick the box when there's text in the input field, and untick it when there's not
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if(editable.length() == 0 && cb.isChecked()) {
@@ -113,24 +120,31 @@ public class MainActivity extends AppCompatActivity {
                     else if(editable.length() > 0 && !cb.isChecked()) {
                         cb.setChecked(true);
                     }
+
+                    if(index == INDEX_BG || index == INDEX_KT) {
+                        //for the BG and KT inputs, only enable the record button
+                        //if the string input follows the format xx.y
+                        findViewById(R.id.record_button)
+                                .setEnabled(matchesDecimalFormat(editable.toString(), 2, 1));
+                    }
                 }
             });
         }
 
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length);
-        inputs[0].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
+        inputs[INDEX_BG].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
         //the same with CP
-        inputs[1].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
+        inputs[INDEX_CP].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
 
         //for QA, allow no digits after the decimal point.
-        inputs[2].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,0)});
+        inputs[INDEX_QA].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,0)});
 
         //with BI, allow 3 digit integers. I used to take ~80, so it's not impossible
-        inputs[3].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3,0)});
+        inputs[INDEX_BI].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(3,0)});
 
         //for KT, I'd be very worried if ketones were > 9.9, but again it's not impossible
-        inputs[4].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
+        inputs[INDEX_KT].setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2,1)});
     }
 
     @Override
@@ -139,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         eventInstant = System.currentTimeMillis();
         //clear all fields on resume, to prepare the app for a fresh entry
         //clearInputs();
-        inputs[0].requestFocus();
+        inputs[INDEX_BG].requestFocus();
         updateEntryTime(entryTimeButton);
 
     }
@@ -250,13 +264,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //derived from stackoverflow.com/questions/5357455
-    public class DecimalDigitsInputFilter implements InputFilter {
-
+    private class DecimalDigitsInputFilter implements InputFilter {
         Pattern mPattern;
         public DecimalDigitsInputFilter(int digitsBeforeZero, int digitsAfterZero) {
             String pat="[0-9]{0,"+digitsBeforeZero+"}((\\.[0-9]{0,"+digitsAfterZero+"})|(\\.)?)";
             mPattern=Pattern.compile(pat);
-            Log.i(TAG, "pattern:"+pat);
+            //Log.i(TAG, "pattern:"+pat);
         }
 
         @Override
@@ -269,6 +282,11 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    private boolean matchesDecimalFormat(String s, int digitsBeforeZero, int digitsAfterZero) {
+        String pat="[0-9]{0,"+digitsBeforeZero+"}((\\.[0-9]{0,"+digitsAfterZero+"})|(\\.)?)";
+        return Pattern.compile(pat).matcher(s).matches();
     }
 
     //i really wish i could put this method in SmsWriter
