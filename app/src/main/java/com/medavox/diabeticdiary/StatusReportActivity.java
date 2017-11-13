@@ -4,9 +4,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.medavox.diabeticdiary.db.EntryDatabase;
+import com.medavox.diabeticdiary.db.entry.BackgroundInsulinEntry;
 import com.medavox.diabeticdiary.db.entry.BloodGlucoseEntry;
 import com.medavox.diabeticdiary.db.entry.CarbPortionEntry;
 import com.medavox.diabeticdiary.db.entry.QuickActingEntry;
@@ -15,28 +18,44 @@ import static com.medavox.util.io.DateTime.TimeFormat.*;
 
 public class StatusReportActivity extends AppCompatActivity {
     private final static String TAG = "StatusReportActivity";
-    private TextView recentQA;
-    private TextView recentCP;
+    private ListView recentQA;
+    private ListView recentBI;
+    private ListView recentCP;
     private TextView lastBG;
-    private TextView sugarSwing;
-    private TextView predictedBG;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_status_report);
-        recentQA = (TextView)findViewById(R.id.recent_qa_value);
-        recentCP = (TextView)findViewById(R.id.recent_cp_value);
+        recentQA = (ListView)findViewById(R.id.recent_qa_value);
+        recentBI = (ListView)findViewById(R.id.recent_bi_value);
+        recentCP = (ListView)findViewById(R.id.recent_cp_value);
         lastBG = (TextView)findViewById(R.id.last_bg_value);
-        sugarSwing = (TextView)findViewById(R.id.cp_qa_swing_value);
-        predictedBG = (TextView)findViewById(R.id.predicted_bg_value);
+        //predictedBG = (TextView)findViewById(R.id.predicted_bg_value);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        //populate recent cp
+        CarbPortionEntry[] cp = EntryDatabase.getRecentCP(EntryDatabase.getReadableDB());
+        ArrayAdapter<CarbPortionEntry> cpAdapter = new ArrayAdapter<CarbPortionEntry>(this,
+                R.layout.entry_list_item, cp);
+        recentCP.setAdapter(cpAdapter);
+
+        //populate recent QA
+        QuickActingEntry[] qa = EntryDatabase.getRecentQA(EntryDatabase.getReadableDB());
+        recentQA.setAdapter(new ArrayAdapter<QuickActingEntry>(this,
+                R.layout.entry_list_item, qa));
+
+        //populate recent BI
+        BackgroundInsulinEntry[] bi = EntryDatabase.getRecentBI(EntryDatabase.getReadableDB());
+        recentBI.setAdapter(new ArrayAdapter<BackgroundInsulinEntry>(this,
+                R.layout.entry_list_item, bi));
+
         populateLastBG();
-        populateRecentCP();
-        populateRecentQA();
+        //populateRecentCP();
+        //populateRecentQA();
     }
 
     private void populateLastBG() {
@@ -48,9 +67,8 @@ public class StatusReportActivity extends AppCompatActivity {
             lastBG.setText(thag);
         }
     }
-
+/*
     private void populateRecentCP() {
-        CarbPortionEntry[] cp = EntryDatabase.getRecentCP(EntryDatabase.getReadableDB());
         Log.i(TAG, "cp entries:"+cp.length);
         if(cp.length > 0) {
             float total =  0;
@@ -66,7 +84,7 @@ public class StatusReportActivity extends AppCompatActivity {
 
     private void populateRecentQA() {
         QuickActingEntry[] qa = EntryDatabase.getRecentQA(EntryDatabase.getReadableDB());
-        Log.i(TAG, "cp entries:"+qa.length);
+        Log.i(TAG, "qa entries:"+qa.length);
         if(qa.length > 0) {
             int total =  0;
             for(QuickActingEntry cpe : qa) {
@@ -77,5 +95,5 @@ public class StatusReportActivity extends AppCompatActivity {
         else {
             recentQA.setText("0");
         }
-    }
+    }*/
 }

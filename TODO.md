@@ -1,6 +1,11 @@
 TODO
 ====
 
+* Add a way to record whether i've eaten anything.
+	- good for when i CBA/don't know CPs
+* when rotating Carb Calculator, fullscreen IME appears in landscape, 
+	and when reverting to portrait, existing ingredients are wiped
+	- fix: make activity portrait-only
 * Edit Last Entry button in the menu
 * Write a conversion method to parse and convert CSV data
 * Create a Log Review screen, which displays the ~5 most recent entries
@@ -51,7 +56,7 @@ TODO
 
 bugfixes
 ----
-* store CP values in SQL db as grams (*10), to avoid floating-point rounding error
+* store CP values in SQL db as grams (x10), to avoid floating-point rounding error
 
 Done
 ===

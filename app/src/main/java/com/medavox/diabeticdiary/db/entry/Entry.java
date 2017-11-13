@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * @date 28/07/2017
  */
 
-abstract class Entry {
+public abstract class Entry {
     private long time;
 
     //11 january 1922: the first time a human was injected with insulin
@@ -42,5 +42,11 @@ abstract class Entry {
         Pattern mPattern = Pattern.compile(pat);
         return mPattern.matcher(input).matches();
 
+    }
+
+    @Override
+    public String toString() {
+        return "at "+DateTime.getTime(time, DateTime.TimeFormat.MINUTES)+" on "+
+                DateTime.getDate(time, DateTime.DateFormat.BRIEF_WITH_DAY);
     }
 }

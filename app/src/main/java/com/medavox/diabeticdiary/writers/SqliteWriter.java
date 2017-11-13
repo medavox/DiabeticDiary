@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 
-import com.medavox.diabeticdiary.MainActivity;
 import com.medavox.diabeticdiary.db.EntryDatabase;
 
 import java.util.Arrays;
@@ -20,13 +19,15 @@ public class SqliteWriter implements DataSink {
     public boolean write(Context c, long time, String[] dataValues) {
         for(int i = 0; i < dataValues.length; i++) {
             if(dataValues[i] != null) {
-                ContentValues vals = new ContentValues(2);
+                ContentValues vals = new ContentValues(3);
                 vals.put(EntryDatabase.COLUMN_TIME, time);
 
-                vals.put(EntryDatabase.columnNames[i], dataValues[i]);
+                vals.put(EntryDatabase.COLUMN_DATA, dataValues[i]);
+                vals.put(EntryDatabase.COLUMN_DATA_TYPE, EntryDatabase.dataTypes[i]);
                 EntryDatabase.getWritableDB()
-                        .insertOrThrow(EntryDatabase.tableNames[i], null, vals);
-                Log.i(TAG, "wrote to sqlite db:"+ Arrays.toString(dataValues));
+                        .insertOrThrow(EntryDatabase.TABLE_NAME
+                                , null, vals);
+                Log.i(TAG, "wrote to sqlite db: ["+ vals+"]");
             }
         }
         return true;

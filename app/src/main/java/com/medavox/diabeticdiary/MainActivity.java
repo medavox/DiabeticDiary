@@ -191,8 +191,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void editLastEntry() {
+        //find the most recent entry in any of the tables
+        //WAIT: but that won't work if the most recently recorded entry is not also
+        // the most recent entry in time, eg an entry whose time is set to before the most recent
+        //find all the entries with that time (within a small margin, eg 1 second) in all tables
+        //load their values into the appropriate EditTexts
+        //delete those rows from their containing tables
+    }
+
     @OnClick(R.id.record_button)
-    public void clickRecordButton() {
+    public void onRecordButtonPressed() {
         boolean anyTicked = false;
         for(int i = 0; i < checkBoxes.length; i++) {
             if(checkBoxes[i].isChecked()) {
