@@ -31,6 +31,8 @@ public class EntryDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     public static final String TABLE_NAME = "entries_table";
+
+    public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TIME = "event_time";
     public static final String COLUMN_DATA = "entry_data";
     public static final String COLUMN_DATA_TYPE = "data_type";
@@ -66,7 +68,8 @@ public class EntryDatabase extends SQLiteOpenHelper {
                 //and having a uniform interface to adding different fields allows us
 // to use array-access when adding rows: the same for-loop can add data to any table
         String query = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME
-                + "(" + COLUMN_TIME + " INTEGER PRIMARY KEY NOT NULL UNIQUE, "
+                + "(" + COLUMN_TIME + " INTEGER NOT NULL, "
+                + COLUMN_ID + " INTEGER PRIMARY KEY NOT NULL UNIQUE, "
                 + COLUMN_DATA + " NOT NULL, "
                 + COLUMN_DATA_TYPE + " NOT NULL"
                 +  ");";
