@@ -1,8 +1,6 @@
 package com.medavox.diabeticdiary;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -42,7 +40,22 @@ import static com.medavox.util.validate.Validator.check;
 
 //consider importing numberpicker module from https://github.com/SimonVT/android-numberpicker,
 //then customising it to my needs
+/*TODO:
+disable RECORD button until all these are met:
+* BG must have a decimal component DONE
+* KT must have a decimal component DONE
 
+* if not blank, then BG, CP, QA, BI and KT must be > 0 DONE
+* entry time must not be in the future
+
+ask the user for confirmation before recording:
+* BG < 1.0
+* BG > 25.0
+* CP > 25
+* QA > 25
+* KT > 2
+* nonzero notes length < 3
+* */
 public class MainActivity extends AppCompatActivity {
     public static final String SP_KEY = "Diabetic Diary SharedPreferences Key";
     public static final String ENTRIES_CACHE_KEY = "Diabetic Diary cached entries";
@@ -107,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
             final CheckBox cb = checkBoxes[i];
             final int index = i;
+            final  Button recordButton = (Button)findViewById(R.id.record_button);
             inputs[i].addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence c,int i,int j,int k){}
                 @Override public void onTextChanged(CharSequence c,int i,int j,int k){}
@@ -114,18 +128,40 @@ public class MainActivity extends AppCompatActivity {
                 //tick the box when there's text in the input field, and untick it when there's not
                 @Override
                 public void afterTextChanged(Editable editable) {
+                    recordButton.setEnabled(true);
                     if(editable.length() == 0 && cb.isChecked()) {
                         cb.setChecked(false);
                     }
-                    else if(editable.length() > 0 && !cb.isChecked()) {
-                        cb.setChecked(true);
+                    else if(editable.length() > 0) {
+                        //disable RECORD button until all these are met:
+                        //if not blank, then BG, CP, QA, BI and KT must be > 0
+                        if(!cb.isChecked()) {
+                            cb.setChecked(true);
+                        }
+                        if(index != INDEX_NOTES) {
+                            try {
+                                Float numericValue = Float.parseFloat(editable.toString());
+                                if(numericValue <= 0.0001 ) {
+                                    //recordButton.setEnabled(false);
+                                    recordButton.setEnabled(false);
+                                }
+                            }catch(NumberFormatException nfe) {
+                                Log.e(TAG, "this should never happen! exception:"+nfe.getLocalizedMessage());
+                            }
+                        }
                     }
 
                     if(index == INDEX_BG || index == INDEX_KT) {
-                        //for the BG and KT inputs, only enable the record button
-                        //if the string input follows the format xx.y
-                        findViewById(R.id.record_button)
-                                .setEnabled(matchesDecimalFormat(editable.toString(), 2, 1));
+                        //only enable the record button
+                        //if the BG and KT inputs have a decimal componeny
+                        //(if non-empty)
+                        // the string input follows the format x.y
+
+                        boolean matches = Pattern.compile("[0-9]{1,2}\\.[0-9]{1}")
+                                .matcher(editable.toString()).matches();
+                        if(!matches && editable.length() > 0) {
+                            recordButton.setEnabled(false);
+                        }
                     }
                 }
             });
@@ -191,15 +227,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void editLastEntry() {
-        //find the most recent entry in any of the tables
-        //WAIT: but that won't work if the most recently recorded entry is not also
-        // the most recent entry in time, eg an entry whose time is set to before the most recent
-        //find all the entries with that time (within a small margin, eg 1 second) in all tables
-        //load their values into the appropriate EditTexts
-        //delete those rows from their containing tables
-    }
-
     @OnClick(R.id.record_button)
     public void onRecordButtonPressed() {
         boolean anyTicked = false;
@@ -224,30 +251,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean[] results = new boolean[outputs.length];
-        for(int i = 0; i < results.length; i++) {
-
+        for(int i = 0; i < outputs.length; i++) {
             results[i] = outputs[i].write(this, eventInstant, values);
         }
 
+        //TODO:
         //first cache the entry in SharedPreferences before attempting any writes
-        //check which if any datasinks failed to write last time, and get the entry that failed
+        //check which if any datasinks failed to write last time, and get the entry(ies) that failed
         //make an extra write() call for the previously failed datasinks, along with this new data
         //... call write() for all datasinks, on this new data
 
         //for any that failed (returned false), write their toString() to the string array in SharedPrefs,
         //and a copy of the data
 
-        //first cache the entry in SharedPreferences before attempting a disk write
-        SharedPreferences sp = getSharedPreferences(SP_KEY, Context.MODE_PRIVATE);
-
-        if(sp.contains(ENTRIES_CACHE_KEY)) {
-        }
-        SharedPreferences.Editor editor = sp.edit();
-
         //clear the UI fields, ready for another entry
         clearInputs();
 
-        eventInstant++;//add 1ms to the event time, to prevent repeated entry times crashing sqlite
+        //eventInstant++;//add 1ms to the event time, to prevent repeated entry times crashing sqlite
     }
 
     @OnClick(R.id.entry_time_button)
