@@ -18,8 +18,8 @@ import static com.medavox.util.io.DateTime.TimeFormat.*;
 
 public class StatusReportActivity extends AppCompatActivity {
     private final static String TAG = "StatusReportActivity";
-    private ListView recentQA, recentBI, recentCP;
-    private TextView lastBG, cpTotal, qaTotal, biTotal;
+    private ListView lastBG, recentQA, recentBI, recentCP;
+    private TextView cpTotal, qaTotal, biTotal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +30,7 @@ public class StatusReportActivity extends AppCompatActivity {
         qaTotal =  (TextView)findViewById(R.id.recent_qa_total);
         cpTotal =  (TextView)findViewById(R.id.recent_cp_total);
         biTotal =  (TextView)findViewById(R.id.recent_bi_total);
-        lastBG =   (TextView)findViewById(R.id.last_bg_value);
+        lastBG =   (ListView)findViewById(R.id.last_bg_value);
         //predictedBG = (TextView)findViewById(R.id.predicted_bg_value);
     }
 
@@ -85,14 +85,14 @@ public class StatusReportActivity extends AppCompatActivity {
         }
 
         //populate lastBG field
-        BloodGlucoseEntry bg = EntryDatabase.getLastBG(EntryDatabase.getReadableDB());
-
-        if(bg != null) {
+        BloodGlucoseEntry[] bg = EntryDatabase.getLastBG(EntryDatabase.getReadableDB(), 3);
+        lastBG.setAdapter(new ArrayAdapter<BloodGlucoseEntry>(this, R.layout.entry_list_item, bg));
+        /*if(bg != null) {
             String thag = bg.getBloodGlucose() + " (at " + DateTime.get(bg.getTime(), MINUTES)+")";
             lastBG.setText(thag);
         }
         else {
             Log.w(TAG, "bloodGlucose is null!");
-        }
+        }*/
     }
 }

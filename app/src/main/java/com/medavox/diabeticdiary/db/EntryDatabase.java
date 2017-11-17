@@ -105,15 +105,28 @@ public class EntryDatabase extends SQLiteOpenHelper {
         return writableDB;
     }
 
-    public static <T extends Entry> T[] getRecentEntries(SQLiteDatabase db,
-                                                         long inTheLast,
-                                                         EntryHelper<T> helper) {
-        T[] returnType = helper.toArray();
+    private static <T extends Entry> T[] getRecentEntries(SQLiteDatabase db,
+                                                          long inTheLast,
+                                                          EntryHelper<T> helper) {
         long timeAgo = System.currentTimeMillis() - inTheLast;
+        String selec = COLUMN_TIME+" > "+timeAgo;
+        return EntryDatabase.getRecentEntries(db, selec, helper);
+
+    }
+
+    private static <T extends Entry> T[] getRecentEntries(@NonNull SQLiteDatabase db,
+                                                          @NonNull EntryHelper<T> helper) {
+        return EntryDatabase.getRecentEntries(db, null, helper);
+    }
+
+    private static <T extends Entry> T[] getRecentEntries(@NonNull SQLiteDatabase db,
+                                                         @Nullable String selection,
+                                                         @NonNull EntryHelper<T> helper) {
+        T[] returnType = helper.toArray();
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_TIME, COLUMN_DATA},
-                COLUMN_TIME+" > "+timeAgo
-                        +" AND "+COLUMN_DATA_TYPE+" = '"+helper.getSqlDataType()+"'",
+                COLUMN_DATA_TYPE+" = '"+helper.getSqlDataType()+"'"+
+                        (selection == null  ? "" : " AND "+selection),
                 null,
                 null,
                 null,
@@ -258,8 +271,15 @@ public class EntryDatabase extends SQLiteOpenHelper {
     }
 
     @Nullable
-    public static BloodGlucoseEntry getLastBG(SQLiteDatabase db) {
-                Cursor lastBG = db.query(TABLE_NAME,
+    public static BloodGlucoseEntry[] getLastBG(SQLiteDatabase db, int numberToGet) {
+        BloodGlucoseEntry[] bloodGlucoseEntries = EntryDatabase.getRecentEntries(db,
+                BloodGlucoseEntry.HELPER);
+        if(numberToGet >= bloodGlucoseEntries.length) {
+            return bloodGlucoseEntries;
+        } else {
+            return Arrays.copyOf(bloodGlucoseEntries, numberToGet);
+        }
+                /*Cursor lastBG = db.query(TABLE_NAME,
                 null,
                 COLUMN_DATA_TYPE+" = '"+DATA_BG+"'",
                 null,
@@ -289,7 +309,7 @@ public class EntryDatabase extends SQLiteOpenHelper {
             }
         }
         lastBG.close();
-        return bge;
+        return bge;*/
     }
 
     @Nullable

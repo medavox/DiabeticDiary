@@ -25,7 +25,7 @@
                 android:text="Last BG reading:"
                 android:textSize="@dimen/title_size" />
 
-            <TextView
+            <com.medavox.diabeticdiary.ExpandedListView
                 android:id="@+id/last_bg_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
