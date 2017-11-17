@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Last BG reading:"
+                android:text="Last 3 BG readings:"
                 android:textSize="@dimen/title_size" />
 
             <com.medavox.diabeticdiary.ExpandedListView
