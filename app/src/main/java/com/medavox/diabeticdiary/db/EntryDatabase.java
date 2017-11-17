@@ -52,7 +52,7 @@ public class EntryDatabase extends SQLiteOpenHelper {
     private static SQLiteOpenHelper instance;
 
     private static final long FOUR_HOURS_FIVE_MINUTES_MS = (4 * 3600 * 1000) + (5 * 60000);
-    private static final long TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+    private static final long TWENTY_FIVE_HOURS_MS = 25 * 60 * 60 * 1000;
 
     private static final String TAG = "EntryDatabase";
     
@@ -234,8 +234,8 @@ public class EntryDatabase extends SQLiteOpenHelper {
 
     @NonNull
     public static BackgroundInsulinEntry[] getRecentBI(SQLiteDatabase db) {
-        return getRecentEntries(db, TWENTY_FOUR_HOURS_MS, BackgroundInsulinEntry.HELPER);/*
-        long twentyFourHoursAgo = System.currentTimeMillis() - TWENTY_FOUR_HOURS_MS;
+        return getRecentEntries(db, TWENTY_FIVE_HOURS_MS, BackgroundInsulinEntry.HELPER);/*
+        long twentyFourHoursAgo = System.currentTimeMillis() - TWENTY_FIVE_HOURS_MS;
         Cursor recentBI = db.query(TABLE_NAME,
                 null,
                 COLUMN_TIME+" > "+twentyFourHoursAgo
