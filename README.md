@@ -13,7 +13,7 @@ As such, it uses the following units and conventions:-
 
 * Blood Glucose (BG) readings are in mmol/L (millimols per litre). A normal reading would be between 5.0 and 7.0; 
 hypoglycaemia is a reading below 4.5, and a hyperglycaemic event would be above 8.0.
-* Food containing Carbohydrate or other human-digestible sugars and polysaccharides is measured in Carbydrate Portions (CP). 
+* Food containing Carbohydrate or other human-digestible sugars and polysaccharides is measured in Carbohydrate Portions (CP). 
 1CP = 10g of sugar or carbohydrate.
 * The app is designed to work with a DAFNE-style dosage regime;
     - the diabetic using the app is expected to follow a basal-bolus system,
