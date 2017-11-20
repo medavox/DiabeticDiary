@@ -8,7 +8,7 @@ Think of it as a software version of the paper diaries your diabetic specialist 
 
 # NOTE
 
-This app is currently written by and for UK diabetics following a DAFNE-like regime.
+This app is currently written by and for British diabetics following a DAFNE-like regime.
 As such, it uses the following units and conventions:-
 
 * Blood Glucose (BG) readings are in mmol/L (millimols per litre). A normal reading would be between 5.0 and 7.0; 
@@ -20,6 +20,8 @@ hypoglycaemia is a reading below 4.5, and a hyperglycaemic event would be above 
     - using injections of Quick-Acting insulin which last approximately 4 hours,
     - and a daily injection Background Insulin which lasts approximately 24 hours.
 * Ketone (KT) readings are also in mmol/L.
+* All times are in a 24-hour format.
+* All dates follow the day/month/year pattern, but are often labelled with short month names (eg January = Jan), and in some cases the day of the week.
 
 ```
 THIS APP IS FOR INFORMATIONAL PURPOSES ONLY, AND IS NOT A REPLACEMENT FOR REAL MEDICAL ADVICE.
