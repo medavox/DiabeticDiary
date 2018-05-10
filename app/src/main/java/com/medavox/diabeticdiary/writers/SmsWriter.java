@@ -17,6 +17,10 @@ import java.util.Set;
 /** @author Adam Howard
  * @date 28/07/2017 */
 public class SmsWriter implements DataSink {
+
+    private static final String LAST_HYPO_KEY = "time of last hypo";
+    private static final long HYPO_ALERT_PERIOD = 30 * 60 * 1000;//30 minutes
+
     private static final int smsSendRequestCode = 42;
     private MainActivity owner;
     public SmsWriter(MainActivity activity) {
@@ -48,8 +52,66 @@ public class SmsWriter implements DataSink {
         }
     }
 
+    /**Only actually sends an SMS if any of the following are true:<br />
+     * <ul>
+     * <li>A BG reading of < 5.0 has been recorded in the last {@link #HYPO_ALERT_PERIOD} time;</li>
+     * <li>The entry data contains a BG Reading of >= 12.0 </li>
+     * <li>The entry contains either ketone or Background Insulin data</li></ul>*/
     @Override
     public boolean write(Context c, long time, String[] dataValues) {
+        SharedPreferences sp = c.getSharedPreferences(MainActivity.SP_KEY, Context.MODE_PRIVATE);
+        String bgReading = dataValues[MainActivity.INDEX_BG];
+
+        long lastHypoTime = sp.getLong(LAST_HYPO_KEY, -1);
+        boolean shouldSendThisText = false;
+        if(lastHypoTime+HYPO_ALERT_PERIOD > time) {
+            //there's been a low BG reading in the last HYPO_ALERT_PERIOD ms (currently 30 mins);
+            //send the text
+            shouldSendThisText = true;
+        }
+        if(bgReading != null && bgReading.length() > 0) {
+            try {
+                float bgAsNumber = Float.valueOf(bgReading);
+                SharedPreferences.Editor editor = sp.edit();
+                if(bgAsNumber <= 5.0) {
+                    //bg reading is low; send the text and ACTIVATE HYPO MODE!
+                    editor.putLong(LAST_HYPO_KEY, time);
+                    editor.apply();
+                    shouldSendThisText = true;
+                }
+                if(bgAsNumber >= 12.0) {
+                    //bg is high; send the text
+                    shouldSendThisText = true;
+                }
+                if(bgAsNumber > 5.5) {
+                    //no longer having a hypo; send this normal BG reading,
+                    //if we're within a hypo alert period,
+                    // cancel the hypo alert period
+                    //DEACTIVATE HYPO MODE!
+                    editor.putLong(LAST_HYPO_KEY, -1);
+                    editor.apply();
+
+                }
+            }catch (NumberFormatException nfe) {
+                Log.e(TAG, "failed to parse BG reading \""+bgReading+"\" as a float!");
+            }
+        }
+
+        //if the entry contains any ketone, BI or notes, send a text
+        String kt = dataValues[MainActivity.INDEX_KT];
+        String bi = dataValues[MainActivity.INDEX_BI];
+        if((kt != null && kt.length() > 0)
+                || (bi != null && bi.length() > 0)) {
+            shouldSendThisText = true;
+        }
+
+        if(!shouldSendThisText){
+            //if we're not in hypo mode, don't send texts about CP, BG or anything else
+            Log.i(TAG, "Nothing urgent in this entry; not sending SMS");
+            Toast.makeText(owner, "No hypo in progress; not sending SMS",
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
         //select which fields have been ticked
         String smsFormatOut = DateTime.get(time,
                 DateTime.TimeFormat.MINUTES, DateTime.DateFormat.BRIEF_WITH_DAY)+": ";
