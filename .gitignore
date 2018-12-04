@@ -9,3 +9,4 @@
 .idea/*.xml
 .idea/caches/
 .idea/codeStyles/
+*.iml

@@ -107,7 +107,7 @@ public class SmsWriter implements DataSink {
 
         if(!shouldSendThisText){
             //if we're not in hypo mode, don't send texts about CP, BG or anything else
-            Log.i(TAG, "Nothing urgent in this entry; not sending SMS");
+            Log.i(TAG, "No urgent data; not sending SMS");
             Toast.makeText(owner, "No hypo in progress; not sending SMS",
                     Toast.LENGTH_LONG).show();
             return true;
