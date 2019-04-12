@@ -15,7 +15,7 @@ import com.medavox.util.io.DateTime;
 import java.util.Set;
 
 /** @author Adam Howard
- * @date 28/07/2017 */
+ *  @since 28/07/2017 */
 public class SmsWriter implements DataSink {
 
     private static final String LAST_HYPO_KEY = "time of last hypo";

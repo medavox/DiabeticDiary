@@ -2,7 +2,7 @@ package com.medavox.diabeticdiary.db.entry;
 
 /**
  * @author Adam Howard
- * @date 13/11/2017
+ * @since 13/11/2017
  */
 
 public abstract class EntryHelper<T extends Entry> {

@@ -4,7 +4,7 @@ import android.content.Context;
 
 /**
  * @author Adam Howard
- * @date 28/07/2017
+ * @since 28/07/2017
  *
  * Implementers provide a method for logging/saving/outputting data
  */

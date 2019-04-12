@@ -4,7 +4,7 @@ import com.medavox.diabeticdiary.db.EntryDatabase;
 
 /**
  * @author Adam Howard
- * @date 28/07/2017
+ * @since 28/07/2017
  */
 
 public class CarbPortionEntry extends Entry {

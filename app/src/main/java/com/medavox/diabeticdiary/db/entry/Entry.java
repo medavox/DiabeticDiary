@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author Adam Howard
- * @date 28/07/2017
+ * @since 28/07/2017
  */
 
 public abstract class Entry {

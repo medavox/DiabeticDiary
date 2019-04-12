@@ -5,7 +5,7 @@ import android.widget.ArrayAdapter;
 
 /**
  * @author Adam Howard
- * @date 13/11/2017
+ * @since 13/11/2017
  */
 
 public final class RecentEntryAdapter extends ArrayAdapter {
