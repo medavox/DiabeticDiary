@@ -33,6 +33,11 @@ dependencies {
     implementation 'com.github.medavox:utils:v0.8'
     testImplementation 'junit:junit:4.12'
 
+    def room_version = "1.1.1"
+    implementation "android.arch.persistence.room:runtime:$room_version"
+    // For Kotlin use kapt instead of annotationProcessor
+    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
+
     implementation 'com.jakewharton:butterknife:8.7.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
