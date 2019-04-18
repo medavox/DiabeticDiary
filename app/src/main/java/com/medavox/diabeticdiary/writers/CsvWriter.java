@@ -6,6 +6,9 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.medavox.diabeticdiary.MainActivity;
+import com.medavox.diabeticdiary.newdb.EntryType;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +17,7 @@ import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -21,21 +25,19 @@ import java.util.Locale;
  * @since 28/07/2017
  */
 
-public class CsvWriter implements DataSink {
+public class CsvWriter implements DataSank {
     public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.UK);
     private static final String TAG = "CSV-Writer";
     @Override
-    public boolean write(Context c, long time, String[] dataValues) {
+    public boolean write(Context c, long time, @NotNull Map<EntryType, String> dataValues) {
 
         String csvFormatOut = csvDateFormat.format(new Date(time));
 
         //select which fields have been ticked
-        for(int i = 0; i < dataValues.length; i++) {
+        for(EntryType entryType : dataValues.keySet()) {
             csvFormatOut += ",";
-            if(dataValues[i] != null) {
-                boolean isNotes = i == dataValues.length-1;
-                csvFormatOut += (isNotes ? "\"" : "") + dataValues[i] + (isNotes?"\"":"");
-            }
+            boolean isNotes = (entryType == EntryType.Notes);
+            csvFormatOut += (isNotes ? "\"" : "") + dataValues.get(entryType) + (isNotes?"\"":"");
         }
 
         File storageDir = Environment.getExternalStorageDirectory();
@@ -60,8 +62,8 @@ public class CsvWriter implements DataSink {
             if(!existed) {
                 //write CSV header
                 String header = "DATETIME";
-                for (String t : dataValues) {
-                    header += ","+t;
+                for (EntryType entryType : dataValues.keySet()) {
+                    header += ","+entryType.shortName;
                 }
                 //s = s.substring(1);
                 csvFile.println(header);
