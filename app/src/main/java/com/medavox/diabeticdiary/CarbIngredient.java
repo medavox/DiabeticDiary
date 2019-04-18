@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
  * @author Adam Howard
  * @since 01/09/2017
  */
-
 public class CarbIngredient {
 
     private String name;//optional

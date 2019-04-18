@@ -19,7 +19,7 @@ import com.medavox.util.validate.Validator;
 import static com.medavox.diabeticdiary.EditNumbersDialogFragment.stringsOf;
 
 public class CarbCalculatorActivity extends AppCompatActivity {
-    private static final String TAG = "IngredientsCarbCalc";
+    private static final String TAG = "CarbCalculator";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
