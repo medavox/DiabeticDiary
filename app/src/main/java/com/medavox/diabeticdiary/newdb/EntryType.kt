@@ -6,13 +6,13 @@ import android.arch.persistence.room.TypeConverter
  * @author Adam Howard
 @date 14/04/2019
  */
-enum class EntryType(val naam:String) {
-    BloodGlucose("Blood Glucose"),
-    CarbPortion("Carbohydrate Portion"),
-    QuickActing("Quick-Acting Insulin"),
-    BackgroundInsulin("Background Insulin"),
-    Ketones("Ketones"),
-    Notes("Notes")
+enum class EntryType(@JvmField val naam:String, @JvmField val shortName:String) {
+    BloodGlucose("Blood Glucose", "BG"),
+    CarbPortion("Carbohydrate Portion", "CP"),
+    QuickActing("Quick-Acting Insulin", "QA"),
+    BackgroundInsulin("Background Insulin", "BI"),
+    Ketones("Ketones", "KT"),
+    Notes("Notes", "NOTES")
 
 }
 class TypeConverters {

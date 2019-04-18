@@ -10,13 +10,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.medavox.diabeticdiary.MainActivity;
+import com.medavox.diabeticdiary.newdb.EntryType;
 import com.medavox.util.io.DateTime;
 
+import java.util.Map;
 import java.util.Set;
 
 /** @author Adam Howard
  *  @since 28/07/2017 */
-public class SmsWriter implements DataSink {
+public class SmsWriter implements DataSank {
 
     private static final String LAST_HYPO_KEY = "time of last hypo";
     private static final long HYPO_ALERT_PERIOD = 30 * 60 * 1000;//30 minutes
@@ -26,7 +28,7 @@ public class SmsWriter implements DataSink {
     public SmsWriter(MainActivity activity) {
         this.owner = activity;
     }
-    private final String[] names = new String[] {"BG", "CP", "QA", "BI", "KT", "NOTES"};
+
     private final static String TAG = "SMS_Writer";
 
     /**Sends the text to all interested phone numbers*/
@@ -58,9 +60,9 @@ public class SmsWriter implements DataSink {
      * <li>The entry data contains a BG Reading of >= 12.0 </li>
      * <li>The entry contains either ketone or Background Insulin data</li></ul>*/
     @Override
-    public boolean write(Context c, long time, String[] dataValues) {
+    public boolean write(Context c, long time, Map<EntryType, String> dataValues) {
         SharedPreferences sp = c.getSharedPreferences(MainActivity.SP_KEY, Context.MODE_PRIVATE);
-        String bgReading = dataValues[MainActivity.INDEX_BG];
+        String bgReading = dataValues.get(EntryType.BloodGlucose);
 
         long lastHypoTime = sp.getLong(LAST_HYPO_KEY, -1);
         boolean shouldSendThisText = false;
@@ -97,11 +99,10 @@ public class SmsWriter implements DataSink {
             }
         }
 
-        //if the entry contains any ketone, BI or notes, send a text
-        String kt = dataValues[MainActivity.INDEX_KT];
-        String bi = dataValues[MainActivity.INDEX_BI];
-        if((kt != null && kt.length() > 0)
-                || (bi != null && bi.length() > 0)) {
+        //if the entry contains any ketone, BI, or QA, send a text
+        if(dataValues.containsKey(EntryType.BackgroundInsulin) ||
+                dataValues.containsKey(EntryType.Ketones) ||
+                dataValues.containsKey(EntryType.QuickActing)) {
             shouldSendThisText = true;
         }
 
@@ -115,17 +116,15 @@ public class SmsWriter implements DataSink {
         //select which fields have been ticked
         String smsFormatOut = DateTime.get(time,
                 DateTime.TimeFormat.MINUTES, DateTime.DateFormat.BRIEF_WITH_DAY)+": ";
-        for(int i = 0; i < dataValues.length; i++) {
-            if(dataValues[i] != null) {
-                smsFormatOut += names[i]+":"+dataValues[i]+", ";
-            }
+        for(EntryType entryType : dataValues.keySet()) {
+            smsFormatOut += entryType.shortName+":"+dataValues.get(entryType)+", ";
         }
         if(smsFormatOut.endsWith(", ")) {
             smsFormatOut = smsFormatOut.substring(0, smsFormatOut.length()-2);
         }
         //csvFormatLine = csvFormatLine.substring(1);
-        if(dataValues[5] != null ) {
-            Log.i(TAG, "notes length:"+dataValues[5].length());
+        if(dataValues.containsKey(EntryType.Notes)) {
+            Log.i(TAG, "notes length:"+dataValues.get(EntryType.Notes).length());
         }
         Log.i(TAG, "sms length:"+smsFormatOut.length());
         Log.i(TAG, "sms message: \""+smsFormatOut+"\"");
