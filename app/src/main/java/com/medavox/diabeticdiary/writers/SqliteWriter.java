@@ -6,8 +6,6 @@ import android.util.Log;
 
 import com.medavox.diabeticdiary.db.EntryDatabase;
 
-import java.util.Arrays;
-
 /**
  * @author Adam Howard
  * @since 28/07/2017

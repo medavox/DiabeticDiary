@@ -1,7 +1,7 @@
 package com.medavox.diabeticdiary.writers;
 
 import android.content.Context;
-import com.medavox.diabeticdiary.newdb.EntryTypes
+import com.medavox.diabeticdiary.newdb.EntryType
 
 /**
  * @author Adam Howard
@@ -19,5 +19,5 @@ interface DataSank {
 *                   The ordering is the same as throughout the rest of the app.
 * @return true if the write operation succeeded; false if it didn't, and should be re-attempted later
      * (meaning the entry cache should not be cleared  of this entry)*/
-    fun write(c:Context, time:Long, dataValues:Map<EntryTypes, String>):Boolean
+    fun write(c:Context, time:Long, dataValues:Map<EntryType, String>):Boolean
 }

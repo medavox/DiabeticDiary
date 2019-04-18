@@ -10,7 +10,7 @@ import java.util.regex.Pattern
  * @since 28/07/2017
  */
 @Entity(primaryKeys = arrayOf("time", "entryType"))
-data class Entri(val time:Long, val entryType: EntryTypez, val data:String) {
+data class Entri(val time:Long, val entryType: EntryType, val data:String) {
     init {
         //don't perform negative checks on this milliseconds-since-epoch datetime:
         //older diabetics (if this app gets released) might possibly want to record entries from

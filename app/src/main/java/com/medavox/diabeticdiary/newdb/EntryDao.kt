@@ -1,19 +1,8 @@
 package com.medavox.diabeticdiary.newdb
 
 import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
-import android.database.Cursor
-import android.support.annotation.NonNull
-import android.support.annotation.Nullable
-import android.util.Log
-
-import com.medavox.diabeticdiary.db.entry.BackgroundInsulinEntry
-import com.medavox.diabeticdiary.db.entry.BloodGlucoseEntry
-import com.medavox.diabeticdiary.db.entry.CarbPortionEntry
-import com.medavox.diabeticdiary.db.entry.Entry
-import com.medavox.diabeticdiary.db.entry.QuickActingEntry
-import com.medavox.util.io.Bytes
-import java.util.*
 
 
 /**
@@ -22,6 +11,12 @@ import java.util.*
  */
 @Dao
 interface EntryDao {
+
+    @Insert
+    fun insertEntries(entries:List<Entri>)
+
+    @Insert
+    fun insertEntries(vararg entries:Entri)
 
     //BG, CP, QA, BI, KT, NOTES}
     //private static final long FOUR_HOURS_FIVE_MINUTES_MS = (4 * 3600 * 1000) + (5 * 60000)
@@ -40,6 +35,6 @@ interface EntryDao {
     fun getRecentBI():List<Entri>
 
     //WHERE entryType = '${EntryTypes.BloodGlucose.naam}
-    @Query("SELECT * FROM Entri LIMIT :numberToGet'")
+    @Query("SELECT * FROM Entri LIMIT :numberToGet")
     fun getLastBG(numberToGet:Int):List<Entri>
 }
