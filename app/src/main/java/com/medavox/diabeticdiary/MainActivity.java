@@ -21,9 +21,9 @@ import android.widget.Toast;
 
 import com.medavox.diabeticdiary.db.EntryDatabase;
 import com.medavox.diabeticdiary.newdb.EntryType;
-import com.medavox.diabeticdiary.newdb.NewSqliteWriter;
+import com.medavox.diabeticdiary.newdb.SqliteWriter;
 import com.medavox.diabeticdiary.writers.CsvWriter;
-import com.medavox.diabeticdiary.writers.DataSank;
+import com.medavox.diabeticdiary.writers.DataSink;
 import com.medavox.diabeticdiary.writers.SmsWriter;
 import com.medavox.util.io.DateTime;
 
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     /**The moment in time that the entry has occured*/
     static long eventInstant;
     private static SmsWriter smsWriter;
-    private static DataSank[] outputs;
+    private static DataSink[] outputs;
     private static EntryDatabase entryDB;
 
     public static final int INDEX_BG = 0;
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialise writer modules
         smsWriter = new SmsWriter(this);
-        outputs = new DataSank[]{new CsvWriter(), smsWriter, new NewSqliteWriter()};
+        outputs = new DataSink[]{new CsvWriter(), smsWriter, new SqliteWriter()};
 
 
         for(int i = 0; i < checkBoxes.length; i++) {

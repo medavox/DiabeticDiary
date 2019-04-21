@@ -1,11 +1,9 @@
 package com.medavox.diabeticdiary.writers;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
-import com.medavox.diabeticdiary.MainActivity;
 import com.medavox.diabeticdiary.newdb.EntryType;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +23,7 @@ import java.util.Map;
  * @since 28/07/2017
  */
 
-public class CsvWriter implements DataSank {
+public class CsvWriter implements DataSink {
     public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.UK);
     private static final String TAG = "CSV-Writer";
     @Override

@@ -9,7 +9,7 @@ import com.medavox.diabeticdiary.newdb.EntryType
  *
  * Implementers provide a method for logging/saving/outputting data
  */
-interface DataSank {
+interface DataSink {
 
     /**Perform a write of the provided data, in whatever way is pertinent to the implementor.
      * @param c

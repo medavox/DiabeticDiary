@@ -18,7 +18,7 @@ import java.util.Set;
 
 /** @author Adam Howard
  *  @since 28/07/2017 */
-public class SmsWriter implements DataSank {
+public class SmsWriter implements DataSink {
 
     private static final String LAST_HYPO_KEY = "time of last hypo";
     private static final long HYPO_ALERT_PERIOD = 30 * 60 * 1000;//30 minutes

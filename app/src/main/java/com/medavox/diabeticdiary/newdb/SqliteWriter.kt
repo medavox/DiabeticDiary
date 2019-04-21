@@ -2,13 +2,13 @@ package com.medavox.diabeticdiary.newdb
 
 import android.content.Context
 import com.medavox.diabeticdiary.DiabApp
-import com.medavox.diabeticdiary.writers.DataSank
+import com.medavox.diabeticdiary.writers.DataSink
 
 /**
  * @author Adam Howard
 @date 16/04/2019
  */
-class NewSqliteWriter : DataSank {
+class SqliteWriter : DataSink {
     override fun write(c: Context, time: Long, dataValues: Map<EntryType, String>): Boolean {
         val db = DiabApp.db
         db?.let {
