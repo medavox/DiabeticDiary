@@ -20,13 +20,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.medavox.diabeticdiary.db.EntryDatabase;
+import com.medavox.diabeticdiary.newdb.EntryType;
+import com.medavox.diabeticdiary.newdb.NewSqliteWriter;
 import com.medavox.diabeticdiary.writers.CsvWriter;
-import com.medavox.diabeticdiary.writers.DataSink;
+import com.medavox.diabeticdiary.writers.DataSank;
 import com.medavox.diabeticdiary.writers.SmsWriter;
-import com.medavox.diabeticdiary.writers.SqliteWriter;
 import com.medavox.util.io.DateTime;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,12 +75,17 @@ public class MainActivity extends AppCompatActivity {
             R.id.BIcheckBox, R.id.KTcheckBox, R.id.notesCheckbox};
     private final CheckBox[] checkBoxes = new CheckBox[checkboxIDs.length];
 
+    private final EntryType[] entryTypes = new EntryType[] {EntryType.BloodGlucose,
+            EntryType.CarbPortion, EntryType.QuickActing, EntryType.BackgroundInsulin,
+            EntryType.Ketones, EntryType.Notes
+        };
+
     /**Remembers the SMS message we want to send, when we need to ask permisson first*/
     public String pendingTextMessage = null;
     /**The moment in time that the entry has occured*/
     static long eventInstant;
     private static SmsWriter smsWriter;
-    private static DataSink[] outputs;
+    private static DataSank[] outputs;
     private static EntryDatabase entryDB;
 
     public static final int INDEX_BG = 0;
@@ -107,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialise writer modules
         smsWriter = new SmsWriter(this);
-        outputs = new DataSink[]{new CsvWriter(), smsWriter, new SqliteWriter()};
+        outputs = new DataSank[]{new CsvWriter(), smsWriter, new NewSqliteWriter()};
 
 
         for(int i = 0; i < checkBoxes.length; i++) {
@@ -153,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(index == INDEX_BG || index == INDEX_KT) {
                         //only enable the record button
-                        //if the BG and KT inputs have a decimal componeny
+                        //if the BG and KT inputs have a decimal component
                         //(if non-empty)
                         // the string input follows the format x.y
 
@@ -241,12 +249,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String[] values = new String[inputs.length];
-        for(int j = 0; j < inputs.length; j++) {
-            if (checkBoxes[j].isChecked()) {
-                values[j] = inputs[j].getText().toString();
-            } else {
-                values[j] = null;
+        Map<EntryType, String> values = new HashMap<>();
+        for(int i = 0; i < inputs.length; i++) {
+            if (checkBoxes[i].isChecked()) {
+                values.put(entryTypes[i], inputs[i].getText().toString());
             }
         }
 
