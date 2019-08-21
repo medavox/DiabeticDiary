@@ -362,11 +362,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    //todo: improve validation to include international numbers
-    public static boolean isValidPhoneNumber(String s) {
-        Pattern pati = Pattern.compile("(0|\\+44)7[0-9]{9}");
-        return pati.matcher(s).matches();
-        //return s.length() == 11 && s.startsWith("07");
-    }
 }

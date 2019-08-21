@@ -11,7 +11,6 @@ import android.widget.*
 
 import com.medavox.util.validate.Validator
 
-import com.medavox.diabeticdiary.EditNumbersDialogFragment.stringsOf
 import kotlinx.android.synthetic.main.activity_carb_calculator.*
 
 class CarbCalculatorActivity : AppCompatActivity() {
