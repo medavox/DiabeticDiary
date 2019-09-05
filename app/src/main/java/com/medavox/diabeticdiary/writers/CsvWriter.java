@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
-import com.medavox.diabeticdiary.newdb.EntryType;
+import com.medavox.diabeticdiary.db.EntryType;
 
 import org.jetbrains.annotations.NotNull;
 

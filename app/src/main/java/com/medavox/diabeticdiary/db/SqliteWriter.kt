@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary.newdb
+package com.medavox.diabeticdiary.db
 
 import android.content.Context
 import com.medavox.diabeticdiary.DiabApp
@@ -10,12 +10,9 @@ import com.medavox.diabeticdiary.writers.DataSink
  */
 class SqliteWriter : DataSink {
     override fun write(c: Context, time: Long, dataValues: Map<EntryType, String>): Boolean {
-        val db = DiabApp.db
-        db?.let {
-            DiabApp.dbWorker.post {
-                val entris = dataValues.map { Entri(time, it.key, it.value) }
-                db.entryDao().insertEntries(entris)
-            }
+        DiabApp.dbWorker.post {
+            val entris = dataValues.map { Entry(time, it.key, it.value) }
+            DiabApp.db().insertEntries(entris)
         }
         return true
     }

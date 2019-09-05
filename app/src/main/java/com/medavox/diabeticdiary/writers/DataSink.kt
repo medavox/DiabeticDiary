@@ -1,7 +1,7 @@
 package com.medavox.diabeticdiary.writers;
 
 import android.content.Context;
-import com.medavox.diabeticdiary.newdb.EntryType
+import com.medavox.diabeticdiary.db.EntryType
 
 /**
  * @author Adam Howard

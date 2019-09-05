@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary.newdb
+package com.medavox.diabeticdiary.db
 
 import androidx.room.TypeConverter
 

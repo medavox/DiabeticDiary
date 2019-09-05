@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary.newdb
+package com.medavox.diabeticdiary.db
 
 /**
  * @author Adam Howard

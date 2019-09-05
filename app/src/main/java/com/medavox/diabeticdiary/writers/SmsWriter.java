@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.medavox.diabeticdiary.MainActivity;
-import com.medavox.diabeticdiary.newdb.EntryType;
+import com.medavox.diabeticdiary.db.EntryType;
 import com.medavox.util.io.DateTime;
 
 import java.util.Map;

@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.room.Room
 import android.os.Handler
 import android.os.HandlerThread
-import com.medavox.diabeticdiary.newdb.AppDb
+import com.medavox.diabeticdiary.db.AppDb
+import com.medavox.diabeticdiary.db.EntryDao
 
 /**
  * @author Adam Howard
@@ -12,8 +13,11 @@ import com.medavox.diabeticdiary.newdb.AppDb
  */
 class DiabApp():Application() {
     companion object {
-        @JvmField
-        var db: AppDb? = null
+        private lateinit var db: AppDb
+
+        fun db():EntryDao {
+            return db.entryDao()
+        }
 
         @JvmField
         val dbWorker: Handler

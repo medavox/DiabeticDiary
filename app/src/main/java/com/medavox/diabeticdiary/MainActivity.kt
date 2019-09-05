@@ -3,7 +3,6 @@ package com.medavox.diabeticdiary
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.annotation.NonNull
 import androidx.fragment.app.DialogFragment
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
@@ -12,23 +11,19 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 
-import com.medavox.diabeticdiary.db.EntryDatabase
-import com.medavox.diabeticdiary.newdb.EntryType
-import com.medavox.diabeticdiary.newdb.SqliteWriter
+import com.medavox.diabeticdiary.db.EntryType
+import com.medavox.diabeticdiary.db.SqliteWriter
 import com.medavox.diabeticdiary.writers.CsvWriter
 import com.medavox.diabeticdiary.writers.DataSink
 import com.medavox.diabeticdiary.writers.SmsWriter
 import com.medavox.util.io.DateTime
 
-import java.util.Arrays
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import com.medavox.util.io.DateTime.DateFormat
@@ -63,7 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var smsWriter:SmsWriter
     private lateinit var outputs:Array<DataSink>
-    private lateinit var entryDB:EntryDatabase
 
     companion object {
         private val TAG = "DiabeticDiary"
@@ -95,7 +89,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        entryDB = EntryDatabase(this)
 
         //initialise writer modules
         smsWriter = SmsWriter(this)
