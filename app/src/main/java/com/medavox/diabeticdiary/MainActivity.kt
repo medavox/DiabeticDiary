@@ -48,10 +48,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 * */
 class MainActivity : AppCompatActivity() {
 
-    private val inputs:Array<EditText> = arrayOf(BGinput, CPinput, QAinput, BIinput, KTinput,
-            notesInput)
-    private val checkBoxes:Array<CheckBox> = arrayOf(BGcheckBox, CPcheckBox, QAcheckBox, BIcheckBox,
-            KTcheckBox, notesCheckbox)
+    private lateinit var inputs:Array<EditText>
+    private lateinit var checkBoxes:Array<CheckBox>
 
     private val entryTypes:Array<EntryType> = arrayOf(EntryType.BloodGlucose,
             EntryType.CarbPortion, EntryType.QuickActing, EntryType.BackgroundInsulin,
@@ -103,6 +101,9 @@ class MainActivity : AppCompatActivity() {
         smsWriter = SmsWriter(this)
         outputs = arrayOf<DataSink>(CsvWriter(), smsWriter, SqliteWriter())
 
+        inputs = arrayOf(BGinput, CPinput, QAinput, BIinput, KTinput, notesInput)
+        checkBoxes = arrayOf(BGcheckBox, CPcheckBox, QAcheckBox, BIcheckBox, KTcheckBox,
+                notesCheckbox)
 
         //add an anonymous TextWatcher for every input field
         for(i in inputs.indices) {
