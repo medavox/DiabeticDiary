@@ -30,6 +30,7 @@ class DiabApp():Application() {
     }
     override fun onCreate() {
         super.onCreate()
-        db = Room.databaseBuilder(this, AppDb::class.java, "Diabetic DB").build()
+        db = Room.databaseBuilder(this, AppDb::class.java, "Diabetic DB").
+                allowMainThreadQueries().build()
     }
 }
