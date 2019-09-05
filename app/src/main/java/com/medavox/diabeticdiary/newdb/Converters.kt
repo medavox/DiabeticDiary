@@ -1,6 +1,6 @@
 package com.medavox.diabeticdiary.newdb
 
-import android.arch.persistence.room.TypeConverter
+import androidx.room.TypeConverter
 
 class Converters {
     @TypeConverter
