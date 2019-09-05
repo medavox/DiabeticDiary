@@ -2,7 +2,7 @@ package com.medavox.diabeticdiary.newdb
 
 import android.arch.persistence.room.TypeConverter
 
-class TypeConverters {
+class Converters {
     @TypeConverter
     fun EntryType2String(entryType: EntryType?): String? {
         return entryType?.let { it.naam }

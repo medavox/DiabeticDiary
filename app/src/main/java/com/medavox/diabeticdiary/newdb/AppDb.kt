@@ -9,7 +9,7 @@ import android.arch.persistence.room.TypeConverters
 @date 14/04/2019
  */
 @Database(entities = [Entri::class], version = 2)
-@TypeConverters(TypeConverters::class)
+@TypeConverters(Converters::class)
 abstract class AppDb : RoomDatabase() {
     abstract fun entryDao(): EntryDao
 }
