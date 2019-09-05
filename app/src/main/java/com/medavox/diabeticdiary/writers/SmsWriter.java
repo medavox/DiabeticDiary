@@ -16,6 +16,8 @@ import com.medavox.util.io.DateTime;
 import java.util.Map;
 import java.util.Set;
 
+import static com.medavox.diabeticdiary.FormerStaticMethodsKt.isValidPhoneNumber;
+
 /** @author Adam Howard
  *  @since 28/07/2017 */
 public class SmsWriter implements DataSink {
@@ -37,7 +39,7 @@ public class SmsWriter implements DataSink {
         Set<String> recipients = sp.getStringSet(MainActivity.SMS_RECIPIENTS_KEY, null);
         if(recipients != null && recipients.size() > 0) {
             for(String number : recipients) {
-                if(MainActivity.isValidPhoneNumber(number)) {
+                if(isValidPhoneNumber(number)) {
                     SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
                 }
                 else {
