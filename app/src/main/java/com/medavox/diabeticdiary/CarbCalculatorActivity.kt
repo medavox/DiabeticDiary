@@ -32,7 +32,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
         });*/
 
         ingredients_list.onItemLongClickListener = object:AdapterView.OnItemLongClickListener {
-            override fun onItemLongClick(adapterView:AdapterView<*> , view:View, pos:Int, rowId:Long):Boolean {
+            override fun onItemLongClick(adapterView:AdapterView<*>?, view:View?, pos:Int, rowId:Long):Boolean {
                 Log.i(TAG, "item at position "+pos+" clicked; view:"+stringOf(view))
                 //ArrayAdapter<String> a = ((ArrayAdapter<String>)listView.getAdapter())
                 //a.remove(a.getItem(pos))
@@ -68,7 +68,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
                                     private val carbPercentBox:EditText,
                                     private val ingredientsAdapter:IngredientsListAdapter
                                     ) : View.OnClickListener, TextView.OnEditorActionListener {
-        override fun onEditorAction(textView:TextView, actionId:Int, keyEvent:KeyEvent):Boolean {
+        override fun onEditorAction(textView:TextView?, actionId:Int, keyEvent:KeyEvent?):Boolean {
             Log.i(TAG, "editor action on $textView: $actionId keyEvent: $keyEvent")
             if(actionId == EditorInfo.IME_ACTION_DONE) {
                 onClick(textView)
@@ -77,7 +77,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
             return false
         }
 
-        override fun onClick(view:View) {
+        override fun onClick(view:View?) {
             val gramsString = gramsBox.getText().toString()
             val carbPercentString = carbPercentBox.getText().toString()
             try {
@@ -107,7 +107,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
         }
     }
 
-    private fun stringOf(view:View):String {
-        return view::class.java.simpleName ?: "<unknown>"
+    private fun stringOf(view:View?):String {
+        return if(view == null) "<null>" else view.javaClass.simpleName ?: "<unknown>"
     }
 }
