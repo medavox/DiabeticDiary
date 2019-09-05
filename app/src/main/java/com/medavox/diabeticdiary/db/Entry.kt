@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  * @author Adam Howard
  * @since 28/07/2017
  */
-@Entity(primaryKeys = arrayOf("time", "entryType"))
+@Entity(primaryKeys = ["time", "entryType"])
 data class Entry(val time:Long, val entryType: EntryType, val data:String) {
     init {
         //don't perform negative checks on this milliseconds-since-epoch datetime:
@@ -45,7 +45,14 @@ data class Entry(val time:Long, val entryType: EntryType, val data:String) {
     }
 
     override fun toString():String {
-        return "at "+DateTime.getTime(time, DateTime.TimeFormat.MINUTES)+" on "+
+        return when(entryType) {
+            EntryType.BloodGlucose -> "$data BG"
+            EntryType.CarbPortion -> "$data CP"
+            EntryType.QuickActing -> "$data QA"
+            EntryType.BackgroundInsulin -> "$data BI"
+            EntryType.Ketones -> "$data KT"
+            else -> data
+        }+" at "+DateTime.getTime(time, DateTime.TimeFormat.MINUTES)+" on "+
                 DateTime.getDate(time, DateTime.DateFormat.BRIEF_WITH_DAY)
     }
 }
