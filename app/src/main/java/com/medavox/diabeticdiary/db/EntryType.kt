@@ -10,6 +10,6 @@ enum class EntryType(@JvmField val naam:String, @JvmField val shortName:String) 
     QuickActing("Quick-Acting Insulin", "QA"),
     BackgroundInsulin("Background Insulin", "BI"),
     Ketones("Ketones", "KT"),
-    Notes("Notes", "NOTES")
-
+    Notes("Notes", "NOTES"),
+    Unknown("Unknown Data", "???")
 }

@@ -51,7 +51,7 @@ class StatusReportActivity : AppCompatActivity() {
 
         if(bi.isNotEmpty()) {
             check(bi.all { it.entryType == EntryType.BackgroundInsulin })//check they're all BI entries
-            var  total = bi.fold(0) {acc:Int, elem:Entry -> acc + elem.data.toInt()}
+            val  total = bi.fold(0) {acc:Int, elem:Entry -> acc + elem.data.toInt()}
             recent_bi_total.text = "TOTAL: $total"
         }
         else {
