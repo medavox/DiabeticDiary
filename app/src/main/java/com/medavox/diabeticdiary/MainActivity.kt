@@ -38,20 +38,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 //consider importing numberpicker module from https://github.com/SimonVT/android-numberpicker,
 //then customising it to my needs
 /*TODO:
-disable RECORD button until all these are met:
-* BG must have a decimal component DONE
-* KT must have a decimal component DONE
-
-* if not blank, then BG, CP, QA, BI and KT must be > 0 DONE
-* entry time must not be in the future
-
-ask the user for confirmation before recording:
-* BG < 1.0
-* BG > 25.0
-* CP > 25
-* QA > 25
-* KT > 2
-* nonzero notes length < 3
+    ask the user for confirmation before recording:
+    * BG < 1.0
+    * BG > 25.0
+    * CP > 25
+    * QA > 25
+    * KT > 2
+    * nonzero notes length < 3
 * */
 class MainActivity : AppCompatActivity() {
 
@@ -76,33 +69,24 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = "DiabeticDiary"
-        @JvmField
-        val INDEX_BG = 0
-        @JvmField
-        val INDEX_CP = 1
-        @JvmField
-        val INDEX_QA = 2
-        @JvmField
-        val INDEX_BI = 3
-        @JvmField
-        val INDEX_KT = 4
-        @JvmField
-        val INDEX_NOTES = 5
+        const val INDEX_BG = 0
+        const val INDEX_CP = 1
+        const val INDEX_QA = 2
+        const val INDEX_BI = 3
+        const val INDEX_KT = 4
+        const val INDEX_NOTES = 5
 
-        @JvmField
-        val SP_KEY = "Diabetic Diary SharedPreferences Key"
-        @JvmField
-        val ENTRIES_CACHE_KEY = "Diabetic Diary cached entries"
-        @JvmField
-        val SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients"
+        const val SP_KEY = "Diabetic Diary SharedPreferences Key"
+        const val ENTRIES_CACHE_KEY = "Diabetic Diary cached entries"
+        const val SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients"
 
         @JvmField
         var eventInstant:Long = 0L
 
         fun updateEntryTime(entryTimeButton:Button?) {
             if(entryTimeButton != null) {
-                entryTimeButton.setText("At " + DateTime.get(eventInstant, TimeFormat.MINUTES,
-                        DateFormat.BRIEF_WITH_DAY))
+                entryTimeButton.text = "At " + DateTime.get(eventInstant, TimeFormat.MINUTES,
+                        DateFormat.BRIEF_WITH_DAY)
             }
             else {
                 Log.e(TAG, "entry time (static) button was null during onResume!")
@@ -131,25 +115,25 @@ class MainActivity : AppCompatActivity() {
 
                 //tick the box when there's text in the input field, and untick it when there's not
                 override fun afterTextChanged(editable:Editable) {
-                    recordButton.setEnabled(true)
-                    if(editable.length == 0 && cb.isChecked()) {
-                        cb.setChecked(false)
+                    recordButton.isEnabled = true
+                    if(editable.isEmpty() && cb.isChecked) {
+                        cb.isChecked = false
                     }
-                    else if(editable.length > 0) {
+                    else if(editable.isNotEmpty()) {
                         //disable RECORD button until all these are met:
                         //if not blank, then BG, CP, QA, BI and KT must be > 0
-                        if(!cb.isChecked()) {
-                            cb.setChecked(true)
+                        if(!cb.isChecked) {
+                            cb.isChecked = true
                         }
                         if(index != INDEX_NOTES) {
                             try {
                                 val numericValue:Float = editable.toString().toFloat()
                                 if(numericValue <= 0.0001 ) {
                                     //recordButton.setEnabled(false)
-                                    recordButton.setEnabled(false)
+                                    recordButton.isEnabled = false
                                 }
                             }catch(nfe:NumberFormatException) {
-                                Log.e(TAG, "this should never happen! exception:"+nfe.getLocalizedMessage())
+                                Log.e(TAG, "this should never happen! exception:"+nfe.localizedMessage)
                             }
                         }
                     }
@@ -162,8 +146,8 @@ class MainActivity : AppCompatActivity() {
 
                         val matches:Boolean = Pattern.compile("[0-9]{1,2}\\.[0-9]{1}").
                                 matcher(editable.toString()).matches()
-                        if(!matches && editable.length > 0) {
-                            recordButton.setEnabled(false)
+                        if(!matches && editable.isNotEmpty()) {
+                            recordButton.isEnabled = false
                         }
                     }
                 }
@@ -173,7 +157,7 @@ class MainActivity : AppCompatActivity() {
         //add the onClickListeners
         entry_time_button.setOnClickListener {
             val newFragment:DialogFragment = DateTimePickerFragment()
-            newFragment.show(getSupportFragmentManager(), "DateTimePicker")
+            newFragment.show(supportFragmentManager, "DateTimePicker")
         }
 
         reset_time_button.setOnClickListener {
@@ -191,7 +175,7 @@ class MainActivity : AppCompatActivity() {
 
             val values:MutableMap<EntryType, String> =  mutableMapOf()
             for(i in inputs.indices) {
-                if (checkBoxes[i].isChecked()) {
+                if (checkBoxes[i].isChecked) {
                     values.put(entryTypes[i], inputs[i].getText().toString())
                 }
             }
@@ -210,7 +194,8 @@ class MainActivity : AppCompatActivity() {
             //and a copy of the data
 
             //clear the UI fields, ready for another entry
-            clearInputs()
+            inputs.forEach {it.setText("") }
+            checkBoxes.forEach { it.isChecked = false }
 
             //eventInstant++;//add 1ms to the event time, to prevent repeated entry times crashing sqlite
         }
@@ -218,18 +203,18 @@ class MainActivity : AppCompatActivity() {
 
         //for BG input, only allow 2 digits before the decimal place, and 1 after
         //Log.i(TAG, "existing filters: "+inputs[0].getFilters().length)
-        inputs[INDEX_BG].setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1)))
+        inputs[INDEX_BG].filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1))
         //the same with CP
-        inputs[INDEX_CP].setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1)))
+        inputs[INDEX_CP].filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1))
 
         //for QA, allow no digits after the decimal point.
-        inputs[INDEX_QA].setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilter(2,0)))
+        inputs[INDEX_QA].filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(2,0))
 
         //with BI, allow 3 digit integers. I used to take ~80, so it's not impossible
-        inputs[INDEX_BI].setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilter(3,0)))
+        inputs[INDEX_BI].filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(3,0))
 
         //for KT, I'd be very worried if ketones were > 9.9, but again it's not impossible
-        inputs[INDEX_KT].setFilters(arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1)))
+        inputs[INDEX_KT].filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(2,1))
     }
 
     override fun onResume() {
@@ -243,22 +228,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu:Menu):Boolean {
-        val inflater:MenuInflater = getMenuInflater()
-        inflater.inflate(R.menu.menu, menu)
+        menuInflater.inflate(R.menu.menu, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item:MenuItem):Boolean {
-        return when(item.getItemId()) {
+        return when(item.itemId) {
             R.id.edit_numbers_menu_item -> {
                 val newFragment:DialogFragment = EditNumbersDialogFragment()
-                newFragment.show(getSupportFragmentManager(), "EditNumbersDialog")
+                newFragment.show(supportFragmentManager, "EditNumbersDialog")
                 true
             }
-            /*case R.id.review_entries_menu_item:
+            /*R.id.review_entries_menu_item -> {
                 //todo
                 Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show()
-                return true;*/
+                true
+            }*/
             R.id.status_report_menu_item -> {
                 startActivity(Intent(this, StatusReportActivity::class.java))
                 return true
@@ -309,7 +294,7 @@ class MainActivity : AppCompatActivity() {
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
         if(permissions.size != 1 || grantResults.size != 1) {
             Log.e(TAG, "Got weird permissions results. Permissions length:"+permissions.size+
-            "; Grant results length: "+grantResults.size+";  permissions:"+ Arrays.toString(permissions))
+            "; Grant results length: "+grantResults.size+";  permissions:"+ permissions.contentToString())
             return
         }
 
@@ -324,19 +309,6 @@ class MainActivity : AppCompatActivity() {
         else {
             Toast.makeText(this, "Permission Refused!", Toast.LENGTH_SHORT).show()
             //permission refused
-        }
-    }
-
-    private fun clearInputs() {
-        for(et:EditText? in inputs) {
-            if(et != null) {
-                et.setText("")
-            }
-        }
-        for(cb:CheckBox? in checkBoxes) {
-            if(cb != null) {
-                cb.setChecked(false)
-            }
         }
     }
 }
