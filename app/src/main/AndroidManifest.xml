@@ -25,6 +25,8 @@
         </activity>
         <activity android:name=".StatusReportActivity">
         </activity>
+        <activity android:name=".EntryReviewActivity">
+        </activity>
         <activity
             android:name=".CarbCalculatorActivity"
             android:label="Carb Calculator"
