@@ -42,6 +42,7 @@ dependencies {
     //implementation 'com.jakewharton:butterknife:8.7.0'
     //annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 }
 repositories {
     mavenCentral()
