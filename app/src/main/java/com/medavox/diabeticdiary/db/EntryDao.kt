@@ -35,6 +35,6 @@ interface EntryDao {
     fun getRecentBI():List<Entry>
 
     //WHERE entryType = '${EntryTypes.BloodGlucose.naam}
-    @Query("SELECT * FROM Entry LIMIT :numberToGet")
+    @Query("SELECT * FROM Entry WHERE entryType = \"BG\" LIMIT :numberToGet")
     fun getLastBG(numberToGet:Int):List<Entry>
 }
