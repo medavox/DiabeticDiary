@@ -233,14 +233,13 @@ class MainActivity : AppCompatActivity() {
                 newFragment.show(supportFragmentManager, "EditNumbersDialog")
                 true
             }
-            /*R.id.review_entries_menu_item -> {
-                //todo
-                Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show()
+            R.id.review_entries_menu_item -> {
+                startActivity(Intent(this, EntryReviewActivity::class.java))
                 true
-            }*/
+            }
             R.id.status_report_menu_item -> {
                 startActivity(Intent(this, StatusReportActivity::class.java))
-                return true
+                true
             }
             R.id.edit_last_entry_menu_item -> {
                 //todo
