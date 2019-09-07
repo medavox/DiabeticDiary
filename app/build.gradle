@@ -33,6 +33,7 @@ dependencies {
     //compile 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'com.github.medavox:utils:v0.8'
     testImplementation 'junit:junit:4.12'
+    implementation "com.jakewharton.threetenabp:threetenabp:1.2.1"
 
     def room_version = "2.1.0"
     implementation "androidx.room:room-runtime:$room_version"
