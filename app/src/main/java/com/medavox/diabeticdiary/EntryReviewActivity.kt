@@ -47,13 +47,13 @@ class EntryReviewActivity : AppCompatActivity() {
                 view.date_heading.text = dateHeading
                 view.date_heading.visibility = View.VISIBLE
             } else {
-                view.visibility = View.GONE
+                view.date_heading.visibility = View.GONE
             }
             if(timeHeading != null) {
                 view.time_heading.text = timeHeading
                 view.time_heading.visibility = View.VISIBLE
             } else {
-                view.visibility = View.GONE
+                view.time_heading.visibility = View.GONE
             }
         }
     }
