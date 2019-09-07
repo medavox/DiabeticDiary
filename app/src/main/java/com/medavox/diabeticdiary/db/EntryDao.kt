@@ -37,4 +37,15 @@ interface EntryDao {
     //WHERE entryType = '${EntryTypes.BloodGlucose.naam}
     @Query("SELECT * FROM Entry WHERE entryType = \"BG\" LIMIT :numberToGet")
     fun getLastBG(numberToGet:Int):List<Entry>
+
+    /**@return null if the index is out of range.*/
+    @Query("SELECT * FROM Entry ORDER BY time DESC LIMIT 1 OFFSET :index")
+    fun getNthMostRecentEntry(index:Int):Entry?
+
+    //do we need the argument startTime??
+    /*@Query("SELECT * FROM Entry WHERE time < :startTime ORDER BY time DESC LIMIT 1 OFFSET :index")
+    fun getNthMostRecentEntryFromTime(index:Int, startTime:Long):Entry*/
+
+    @Query("SELECT COUNT(*) FROM Entry")
+    fun getNumberOfEntries():Int
 }
