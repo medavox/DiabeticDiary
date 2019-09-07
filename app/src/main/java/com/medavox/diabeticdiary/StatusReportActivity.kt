@@ -21,7 +21,7 @@ class StatusReportActivity : AppCompatActivity() {
         //populate recent cp
         val cp = DiabApp.db().getRecentCP()
         recent_cp_value.adapter = ArrayAdapter<Entry>(this,
-                R.layout.entry_list_item, cp)
+                R.layout.status_report_entry_list_item, cp)
         if(cp.isNotEmpty()) {
             check(cp.all { it.entryType == EntryType.CarbPortion })//check they're all CP entries
             val total = cp.fold(0F ){acc:Float, elem:Entry -> acc+elem.data.toFloat()}
@@ -34,7 +34,7 @@ class StatusReportActivity : AppCompatActivity() {
         //populate recent QA
         val qa = DiabApp.db().getRecentQA()
         recent_qa_value.setAdapter(ArrayAdapter<Entry>(this,
-                R.layout.entry_list_item, qa))
+                R.layout.status_report_entry_list_item, qa))
         if(qa.isNotEmpty()) {
             check(qa.all { it.entryType == EntryType.QuickActing })//check they're all QA entries
             val total =  qa.fold(0) { acc:Int, elem:Entry -> acc + elem.data.toInt()}
@@ -47,7 +47,7 @@ class StatusReportActivity : AppCompatActivity() {
         //populate recent BI
         val bi = DiabApp.db().getRecentBI()
         recent_bi_value.adapter = ArrayAdapter<Entry>(this,
-                R.layout.entry_list_item, bi)
+                R.layout.status_report_entry_list_item, bi)
 
         if(bi.isNotEmpty()) {
             check(bi.all { it.entryType == EntryType.BackgroundInsulin })//check they're all BI entries
@@ -60,7 +60,7 @@ class StatusReportActivity : AppCompatActivity() {
 
         //populate lastBG field
         val bg = DiabApp.db().getLastBG(3)
-        last_bg_value.adapter = ArrayAdapter<Entry>(this, R.layout.entry_list_item, bg)
+        last_bg_value.adapter = ArrayAdapter<Entry>(this, R.layout.status_report_entry_list_item, bg)
         /*if(bg != null) {
             String thag = bg.getBloodGlucose() + " (at " + DateTime.get(bg.getTime(), MINUTES)+")"
             lastBG.setText(thag)
