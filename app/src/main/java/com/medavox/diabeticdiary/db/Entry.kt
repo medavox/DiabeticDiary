@@ -2,6 +2,7 @@ package com.medavox.diabeticdiary.db
 
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.medavox.util.io.DateTime
 import java.util.regex.Pattern
 
@@ -9,8 +10,13 @@ import java.util.regex.Pattern
  * @author Adam Howard
  * @since 28/07/2017
  */
-@Entity(primaryKeys = ["time", "entryType"])
-data class Entry(val time:Long, val entryType: EntryType, val data:String) {
+@Entity
+data class Entry(val time:Long,
+                 val entryType: EntryType,
+                 val data:String,
+                 @PrimaryKey(autoGenerate = true)
+                 val id:Int=0) {
+
     init {
         //don't perform negative checks on this milliseconds-since-epoch datetime:
         //older diabetics (if this app gets released) might possibly want to record entries from
