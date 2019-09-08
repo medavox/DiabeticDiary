@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import android.os.Handler
 import android.os.HandlerThread
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.medavox.diabeticdiary.db.AppDb
 import com.medavox.diabeticdiary.db.EntryDao
 
@@ -30,6 +31,7 @@ class DiabApp():Application() {
     }
     override fun onCreate() {
         super.onCreate()
+        AndroidThreeTen.init(this)//initialise timezone ID database from Jake Wharton
         db = Room.databaseBuilder(this, AppDb::class.java, "Diabetic DB").
                 allowMainThreadQueries().build()
     }
