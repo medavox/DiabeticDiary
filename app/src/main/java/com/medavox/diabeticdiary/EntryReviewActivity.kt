@@ -84,29 +84,28 @@ class EntryReviewActivity : AppCompatActivity() {
                 Log.e(TAG, "entry $position is null!")
                 return
             }
-            Log.v(TAG, "entry:$entry")
-            val previousEntry = dao.getNthMostRecentEntry(position-1)
+            val previousEntry = dao.getNthMostRecentEntry(position+1)
 
             val currentDateTime = LocalDateTime.ofInstant(Instant.
                     ofEpochMilli(entry.time), ZoneOffset.UTC)
             data class showDateAndTime(val showDate:Boolean, val showTime:Boolean)
 
-            val (showDate, showTime) = if(previousEntry == null) {
+            val (showDate, showTime) = if(previousEntry == null || position == itemCount-1) {
                 showDateAndTime(showDate = true, showTime = true)
             }else {
                 val previousDateTime = LocalDateTime.ofInstant(Instant.
                         ofEpochMilli(previousEntry.time), ZoneOffset.UTC)
                 showDateAndTime(
-                currentDateTime.toLocalDate() == previousDateTime.toLocalDate(),
-                currentDateTime.toLocalTime() == previousDateTime.toLocalTime()
+                currentDateTime.toLocalDate() != previousDateTime.toLocalDate(),
+                currentDateTime.toLocalTime() != previousDateTime.toLocalTime()
                 )
             }
             val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM")
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             return holder.reuse(
-                entryValue = entry.data,
-                dateHeading = if(showDate) null else currentDateTime.toLocalDate().format(dtfDate),
-                timeHeading = if(showTime) null else currentDateTime.toLocalTime().format(dtfTime)
+                entryValue = entry.data+" "+entry.entryType.shortName,
+                dateHeading = if(showDate) currentDateTime.toLocalDate().format(dtfDate) else null,
+                timeHeading = if(showTime) currentDateTime.toLocalTime().format(dtfTime) else null
             )
         }
     }
