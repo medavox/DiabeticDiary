@@ -33,7 +33,7 @@ class EntryReviewActivity : AppCompatActivity() {
             setHasFixedSize(false)
 
             // use a linear layout manager
-            layoutManager = LinearLayoutManager(this@EntryReviewActivity)//.apply{reverseLayout = true}
+            layoutManager = LinearLayoutManager(this@EntryReviewActivity).apply{reverseLayout = true}
 
             // specify an viewAdapter (see also next example)
             adapter = EntryAdapter(DiabApp.db())
@@ -58,7 +58,7 @@ class EntryReviewActivity : AppCompatActivity() {
         }
     }
 
-    //TODO: Use those context-establishing time/date headings (like on slack/fbmsgr)
+    //Use those context-establishing time/date headings (like on slack/fbmsgr)
     // preceding each entry:
     // 1) before the first entry on a date different to the previous entry, and
     // 2) on a different time (hour and minute) to the previous entry
@@ -68,13 +68,13 @@ class EntryReviewActivity : AppCompatActivity() {
         private val TAG = "EntryAdapter"
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
             val v = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.entry_review_item, parent, false) as LinearLayout
+                    .inflate(R.layout.entry_review_item, parent, false)
             return EntryViewHolder(v)
         }
 
         override fun getItemCount(): Int {
             val num = dao.getNumberOfEntries()
-            Log.v(TAG, "entries: $num")
+            //Log.v(TAG, "entries: $num")
             return num
         }
 

@@ -8,12 +8,6 @@
     android:padding="40dp"
     tools:context="com.medavox.diabeticdiary.EntryReviewActivity">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/entry_review_list"
         android:layout_width="match_parent"
