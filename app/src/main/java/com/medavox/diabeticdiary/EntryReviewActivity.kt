@@ -100,7 +100,8 @@ class EntryReviewActivity : AppCompatActivity() {
                 currentDateTime.toLocalTime() != previousDateTime.toLocalTime()
                 )
             }
-            val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM")
+            Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
+            val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             return holder.reuse(
                 entryValue = entry.data+" "+entry.entryType.shortName,
