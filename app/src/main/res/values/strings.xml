@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Diabetic Diary</string>
     <integer name="notes_max_length">70</integer>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <!--Force spaces to be kept. Android normally trims outer spaces-->
+    <string name="at_time">\u0020at\u0020</string>
 </resources>

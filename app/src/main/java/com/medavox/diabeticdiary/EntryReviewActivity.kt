@@ -103,10 +103,21 @@ class EntryReviewActivity : AppCompatActivity() {
             Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
             val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val today = LocalDateTime.now(ZoneOffset.UTC)
+            val yesterday = today.minusDays(1)
+            val dateToDisplay = if(showDate) {
+                when (currentDateTime.toLocalDate()) {
+                    today.toLocalDate() -> getString(R.string.today)
+                    yesterday.toLocalDate() -> getString(R.string.yesterday)
+                    else -> currentDateTime.toLocalDate().format(dtfDate)
+                }
+            } else null
+
+            val dateTimeConnector = if(dateToDisplay != null) getString(R.string.at_time) else ""
             return holder.reuse(
                 entryValue = entry.data+" "+entry.entryType.shortName,
-                dateHeading = if(showDate) currentDateTime.toLocalDate().format(dtfDate) else null,
-                timeHeading = if(showTime) currentDateTime.toLocalTime().format(dtfTime) else null
+                dateHeading = dateToDisplay,
+                timeHeading = dateTimeConnector + if(showTime) currentDateTime.toLocalTime().format(dtfTime) else null
             )
         }
     }
