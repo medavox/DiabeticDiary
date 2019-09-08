@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,6 +57,10 @@ class EntryReviewActivity : AppCompatActivity() {
         }
     }
 
+    //todo:
+    //  display entries in a table, with each type of Entry in its own column, for easier reading
+    //  make entries editable
+
     //Use those context-establishing time/date headings (like on slack/fbmsgr)
     // preceding each entry:
     // 1) before the first entry on a date different to the previous entry, and
@@ -86,41 +89,44 @@ class EntryReviewActivity : AppCompatActivity() {
             }
             val previousEntry = dao.getNthMostRecentEntry(position+1)
 
-            val currentDateTime = ZonedDateTime.ofInstant(Instant.
+            val currEntryDateTime = ZonedDateTime.ofInstant(Instant.
                     ofEpochMilli(entry.time), ZoneOffset.UTC)
             data class showDateAndTime(val showDate:Boolean, val showTime:Boolean)
 
             val (showDate, showTime) = if(previousEntry == null) {
                 showDateAndTime(showDate = true, showTime = true)
             }else {
-                val previousDateTime = ZonedDateTime.ofInstant(Instant.
+                val prevEntryDateTime = ZonedDateTime.ofInstant(Instant.
                         ofEpochMilli(previousEntry.time), ZoneOffset.UTC)
                 showDateAndTime(
-                currentDateTime.toLocalDate() != previousDateTime.toLocalDate(),
-                currentDateTime.toLocalTime() != previousDateTime.toLocalTime()
+                    currEntryDateTime.toLocalDate() != prevEntryDateTime.toLocalDate(),
+                    currEntryDateTime.toLocalTime() != prevEntryDateTime.toLocalTime()
                 )
             }
             //ZoneId.of("Europe/London")
             Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
+
             val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
                     .withZone(ZoneId.of("Europe/London"))
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                     .withZone(ZoneId.of("Europe/London"))
             val today = LocalDateTime.now(ZoneOffset.UTC)
             val yesterday = today.minusDays(1)
-            val dateToDisplay = if(showDate) {
-                when (currentDateTime.toLocalDate()) {
-                    today.toLocalDate() -> getString(R.string.today)
-                    yesterday.toLocalDate() -> getString(R.string.yesterday)
-                    else -> currentDateTime.format(dtfDate)
+            val dateToDisplay = if (!showDate) null else { with(currEntryDateTime) {
+                when {
+                    toLocalDate() == today.toLocalDate() -> getString(R.string.today)
+                    toLocalDate() == yesterday.toLocalDate() -> getString(R.string.yesterday)
+                    //display the year if it's not the same as the current one
+                    year != today.year -> currEntryDateTime.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
+                    else -> currEntryDateTime.format(dtfDate)
                 }
-            } else null
+            } }
 
             val dateTimeConnector = if(dateToDisplay != null) getString(R.string.at_time) else null
             return holder.reuse(
                 entryValue = entry.data+" "+entry.entryType.shortName,
                 dateHeading = dateToDisplay,
-                timeHeading = if(showTime) currentDateTime.format(dtfTime) else null
+                timeHeading = if(showTime) currEntryDateTime.format(dtfTime) else null
             )
         }
     }
