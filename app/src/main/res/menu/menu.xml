@@ -22,12 +22,6 @@
         android:title="Review Entries"
         android:visible="true"/>
     <item
-        android:id="@+id/edit_last_entry_menu_item"
-        android:checkable="false"
-        android:enabled="false"
-        android:title="Review Entries"
-        android:visible="true"/>
-    <item
         android:id="@+id/edit_numbers_menu_item"
         android:checkable="false"
         android:enabled="true"

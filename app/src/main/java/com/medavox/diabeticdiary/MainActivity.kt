@@ -241,11 +241,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, StatusReportActivity::class.java))
                 true
             }
-            R.id.edit_last_entry_menu_item -> {
-                //todo
-                Toast.makeText(this, "Not yet implemented, sorry", Toast.LENGTH_LONG).show()
-                true
-            }
             R.id.carb_calculator_menu_item -> {
                 startActivity(Intent(this, CarbCalculatorActivity::class.java))
                 true
