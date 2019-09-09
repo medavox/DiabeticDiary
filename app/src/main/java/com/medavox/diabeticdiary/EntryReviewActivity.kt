@@ -91,15 +91,17 @@ class EntryReviewActivity : AppCompatActivity() {
             }
             val previousEntry = dao.getNthMostRecentEntry(position+1)
 
-            val currEntryDateTime = ZonedDateTime.ofInstant(Instant.
-                    ofEpochMilli(entry.time), ZoneOffset.UTC)
+            val currEntryDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(entry.time),
+                    ZoneOffset.UTC)
+                .withZoneSameInstant(ZoneId.of("Europe/London"))
             data class showDateAndTime(val showDate:Boolean, val showTime:Boolean)
 
             val (showDate, showTime) = if(previousEntry == null) {
                 showDateAndTime(showDate = true, showTime = true)
             }else {
-                val prevEntryDateTime = ZonedDateTime.ofInstant(Instant.
-                        ofEpochMilli(previousEntry.time), ZoneOffset.UTC)
+                val prevEntryDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(previousEntry.time),
+                        ZoneOffset.UTC)
+                    .withZoneSameInstant(ZoneId.of("Europe/London"))
                 showDateAndTime(
                     currEntryDateTime.toLocalDate() != prevEntryDateTime.toLocalDate(),
                     currEntryDateTime.toLocalTime() != prevEntryDateTime.toLocalTime()
@@ -108,10 +110,8 @@ class EntryReviewActivity : AppCompatActivity() {
             //Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
 
             val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
-                    .withZone(ZoneId.of("Europe/London"))//or ZoneId.systemDefault()
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                    .withZone(ZoneId.of("Europe/London"))
-            val today = LocalDateTime.now(ZoneOffset.UTC)
+            val today = LocalDateTime.now(ZoneId.of("Europe/London"))
             val yesterday = today.minusDays(1)
             val dateToDisplay = if (!showDate) null else { with(currEntryDateTime) {
                 when {
