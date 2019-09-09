@@ -54,12 +54,14 @@ class EntryReviewActivity : AppCompatActivity() {
             } else {
                 view.time_heading.visibility = View.GONE
             }
+            //Log.i("EntryViewHolder", "main thing width:"+view.entry_value.width)
         }
     }
 
     //todo:
     //  display entries in a table, with each type of Entry in its own column, for easier reading
     //  make entries editable
+    //  UI tick-boxes for filtering which type(s) of entries to show
 
     //Use those context-establishing time/date headings (like on slack/fbmsgr)
     // preceding each entry:
@@ -103,11 +105,10 @@ class EntryReviewActivity : AppCompatActivity() {
                     currEntryDateTime.toLocalTime() != prevEntryDateTime.toLocalTime()
                 )
             }
-            //ZoneId.of("Europe/London")
-            Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
+            //Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
 
             val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
-                    .withZone(ZoneId.of("Europe/London"))
+                    .withZone(ZoneId.of("Europe/London"))//or ZoneId.systemDefault()
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                     .withZone(ZoneId.of("Europe/London"))
             val today = LocalDateTime.now(ZoneOffset.UTC)
