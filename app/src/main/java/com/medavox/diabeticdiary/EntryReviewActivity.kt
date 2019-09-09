@@ -62,6 +62,7 @@ class EntryReviewActivity : AppCompatActivity() {
     //  display entries in a table, with each type of Entry in its own column, for easier reading
     //  make entries editable
     //  UI tick-boxes for filtering which type(s) of entries to show
+    //  jump to a specific date/time
 
     //Use those context-establishing time/date headings (like on slack/fbmsgr)
     // preceding each entry:
