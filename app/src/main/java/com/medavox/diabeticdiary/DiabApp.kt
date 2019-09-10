@@ -75,7 +75,8 @@ class DiabApp():Application() {
                 val data = 2
                 val type = 3
                 reader.forEachLine { line ->
-                    //val r = Regex(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)")
+                    if(line.startsWith('#')) Unit //skip lines starting with #
+
                     val columns = line.csvSplit()
                     try {
                         val importedEntry = Entry(
