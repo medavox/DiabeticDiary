@@ -82,11 +82,11 @@ class DiabApp():Application() {
                         val importedEntry = Entry(
                                 columns[time].toLong(),
                                 when (columns[type]) {
-                                    "blood_glucose" -> EntryType.BloodGlucose
-                                    "carb_portion" -> EntryType.CarbPortion
-                                    "quick_acting" -> EntryType.QuickActing
-                                    "background_insulin" -> EntryType.BackgroundInsulin
-                                    "ketones" -> EntryType.Ketones
+                                    "blood_glucose", "bg" -> EntryType.BloodGlucose
+                                    "carb_portion", "cp" -> EntryType.CarbPortion
+                                    "quick_acting", "qa" -> EntryType.QuickActing
+                                    "background_insulin", "bi" -> EntryType.BackgroundInsulin
+                                    "ketones", "kt" -> EntryType.Ketones
                                     "notes" -> EntryType.Notes
                                     else -> EntryType.Unknown
                                 },
