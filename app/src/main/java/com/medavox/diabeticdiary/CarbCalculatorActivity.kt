@@ -12,7 +12,12 @@ import android.widget.*
 import com.medavox.util.validate.Validator
 
 import kotlinx.android.synthetic.main.activity_carb_calculator.*
-
+//TODO:
+// focus the first text input box in onResume()
+// expand the text input fields to fill the rest of the row not occupied by the text
+// support optional decimal percentages (1dp only), eg milk is 4.7%, not 5%
+// button to add the calculated carb to a new CP entry in the main activity
+// be able to resume previous calculation
 class CarbCalculatorActivity : AppCompatActivity() {
     private val TAG = "CarbCalculator"
 
