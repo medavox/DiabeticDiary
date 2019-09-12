@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary
+package com.medavox.diabeticdiary.carbcalculator
 
 import android.database.DataSetObserver
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +8,8 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import com.medavox.diabeticdiary.R
+import com.medavox.diabeticdiary.stringsOf
 
 import com.medavox.util.validate.Validator
 

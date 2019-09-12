@@ -1,8 +1,10 @@
-package com.medavox.diabeticdiary
+package com.medavox.diabeticdiary.statusreport
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import com.medavox.diabeticdiary.DiabApp
+import com.medavox.diabeticdiary.R
 import com.medavox.diabeticdiary.db.Entry
 import com.medavox.diabeticdiary.db.EntryType
 

@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary
+package com.medavox.diabeticdiary.statusreport
 
 import android.content.Context
 import android.graphics.Canvas

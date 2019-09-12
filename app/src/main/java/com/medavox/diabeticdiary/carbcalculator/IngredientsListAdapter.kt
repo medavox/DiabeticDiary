@@ -1,9 +1,10 @@
-package com.medavox.diabeticdiary
+package com.medavox.diabeticdiary.carbcalculator
 
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import com.medavox.diabeticdiary.R
 
 import java.io.Closeable
 import java.io.IOException

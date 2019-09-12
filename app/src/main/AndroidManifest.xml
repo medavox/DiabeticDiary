@@ -23,12 +23,12 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".StatusReportActivity">
+        <activity android:name=".statusreport.StatusReportActivity">
         </activity>
         <activity android:name=".EntryReviewActivity">
         </activity>
         <activity
-            android:name=".CarbCalculatorActivity"
+            android:name=".carbcalculator.CarbCalculatorActivity"
             android:label="Carb Calculator"
             android:taskAffinity="com.medavox.diabeticdiary.carbCalc">
             <intent-filter>

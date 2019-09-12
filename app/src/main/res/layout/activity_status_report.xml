@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.medavox.diabeticdiary.StatusReportActivity">
+    tools:context="com.medavox.diabeticdiary.statusreport.StatusReportActivity">
 
 
     <ScrollView
@@ -25,7 +25,7 @@
                 android:text="Last 3 BG readings:"
                 android:textSize="@dimen/title_size" />
 
-            <com.medavox.diabeticdiary.ExpandedListView
+            <com.medavox.diabeticdiary.statusreport.ExpandedListView
                 android:id="@+id/last_bg_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                 android:text="QA Taken in the last 4 hours:"
                 android:textSize="@dimen/title_size" />
 
-            <com.medavox.diabeticdiary.ExpandedListView
+            <com.medavox.diabeticdiary.statusreport.ExpandedListView
                 android:id="@+id/recent_qa_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
                 android:text="CPs eaten in the last 4 hours:"
                 android:textSize="@dimen/title_size" />
 
-            <com.medavox.diabeticdiary.ExpandedListView
+            <com.medavox.diabeticdiary.statusreport.ExpandedListView
                 android:id="@+id/recent_cp_value"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -77,7 +77,7 @@
                 android:text="BI Taken In The Last 25 Hours:"
                 android:textSize="@dimen/title_size" />
 
-            <com.medavox.diabeticdiary.ExpandedListView
+            <com.medavox.diabeticdiary.statusreport.ExpandedListView
                 android:id="@+id/recent_bi_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

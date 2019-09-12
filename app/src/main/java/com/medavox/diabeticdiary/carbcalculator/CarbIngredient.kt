@@ -1,4 +1,4 @@
-package com.medavox.diabeticdiary
+package com.medavox.diabeticdiary.carbcalculator
 
 /**
  * @author Adam Howard

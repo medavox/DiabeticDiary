@@ -16,9 +16,11 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import com.medavox.diabeticdiary.carbcalculator.CarbCalculatorActivity
 
 import com.medavox.diabeticdiary.db.EntryType
 import com.medavox.diabeticdiary.db.SqliteWriter
+import com.medavox.diabeticdiary.statusreport.StatusReportActivity
 import com.medavox.diabeticdiary.writers.CsvWriter
 import com.medavox.diabeticdiary.writers.DataSink
 import com.medavox.diabeticdiary.writers.SmsWriter
