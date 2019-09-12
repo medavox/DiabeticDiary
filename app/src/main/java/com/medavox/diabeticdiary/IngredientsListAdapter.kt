@@ -23,11 +23,6 @@ class IngredientsListAdapter(private val activity :Activity) : BaseAdapter(), Cl
         notifyDataSetChanged()
     }
 
-    fun remove(i:Int) {
-        items.removeAt(i)
-        notifyDataSetChanged()
-    }
-
     override fun getCount():Int {
         //Log.i(TAG, "getCount() called, returning "+items.size())
         return items.size
@@ -61,12 +56,13 @@ class IngredientsListAdapter(private val activity :Activity) : BaseAdapter(), Cl
         //carb_ing
         view.carb_ingredient_item_text_view.text = ci.grams.toString()+"g of food at "+ci.percentCarb+
                 "% carb = "+(ci.CPx1000.toFloat()/1000F).toString()+" CP"
-        //removeButton.setOnClickListener()
-        view.remove_carb_ingredient_button.setOnClickListener(View.OnClickListener() {
-            @Override fun onClick(view:View) {
-                remove(i);//can't believe how easy it was getting the index of the view that had its remove button clicked
-                //we just use the parameter of this enclosing method! brilliant!
-            }})
+        //can't believe how easy it was getting the index of the view,
+        // that had its remove button clicked
+        //we just use the parameter of this enclosing method! brilliant!
+        view.remove_carb_ingredient_button.setOnClickListener {
+            items.removeAt(i)
+            notifyDataSetChanged()
+        }
         return view
     }
 

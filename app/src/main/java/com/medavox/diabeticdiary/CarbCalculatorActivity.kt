@@ -83,8 +83,8 @@ class CarbCalculatorActivity : AppCompatActivity() {
         }
 
         override fun onClick(view:View?) {
-            val gramsString = gramsBox.getText().toString()
-            val carbPercentString = carbPercentBox.getText().toString()
+            val gramsString = gramsBox.text.toString()
+            val carbPercentString = carbPercentBox.text.toString()
             try {
                 val grames = Integer.parseInt(gramsString)
                 val percente = Integer.parseInt(carbPercentString)
