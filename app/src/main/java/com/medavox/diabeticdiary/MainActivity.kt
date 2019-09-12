@@ -1,5 +1,6 @@
 package com.medavox.diabeticdiary
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -176,8 +177,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val results:BooleanArray = outputs.map { it.write(this, eventInstant, values) }
-                    .toTypedArray().toBooleanArray()
+            val results:BooleanArray = outputs.map {
+                it.write(getSharedPreferences(SP_KEY, MODE_PRIVATE), eventInstant, values)
+            }.toTypedArray().toBooleanArray()
             //results[i] = outputs[i].write(this, eventInstant, values)
 
             //TODO:

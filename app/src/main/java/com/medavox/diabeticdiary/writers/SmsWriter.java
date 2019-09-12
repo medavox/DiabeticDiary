@@ -62,8 +62,8 @@ public class SmsWriter implements DataSink {
      * <li>The entry data contains a BG Reading of >= 12.0 </li>
      * <li>The entry contains either ketone or Background Insulin data</li></ul>*/
     @Override
-    public boolean write(Context c, long time, Map<EntryType, String> dataValues) {
-        SharedPreferences sp = c.getSharedPreferences(MainActivity.SP_KEY, Context.MODE_PRIVATE);
+    public boolean write(SharedPreferences sp, long time, Map<EntryType, String> dataValues) {
+        //SharedPreferences sp = c.getSharedPreferences(MainActivity.SP_KEY, Context.MODE_PRIVATE);
         String bgReading = dataValues.get(EntryType.BloodGlucose);
 
         long lastHypoTime = sp.getLong(LAST_HYPO_KEY, -1);

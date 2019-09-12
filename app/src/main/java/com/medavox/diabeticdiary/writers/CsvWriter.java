@@ -1,6 +1,7 @@
 package com.medavox.diabeticdiary.writers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
@@ -27,7 +28,7 @@ public class CsvWriter implements DataSink {
     public static final SimpleDateFormat csvDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.UK);
     private static final String TAG = "CSV-Writer";
     @Override
-    public boolean write(Context c, long time, @NotNull Map<EntryType, String> dataValues) {
+    public boolean write(SharedPreferences sp, long time, @NotNull Map<EntryType, String> dataValues) {
 
         String csvFormatOut = csvDateFormat.format(new Date(time));
 

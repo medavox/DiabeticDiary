@@ -1,6 +1,7 @@
 package com.medavox.diabeticdiary.writers;
 
 import android.content.Context;
+import android.content.SharedPreferences
 import com.medavox.diabeticdiary.db.EntryType
 
 /**
@@ -19,5 +20,5 @@ interface DataSink {
 *                   The ordering is the same as throughout the rest of the app.
 * @return true if the write operation succeeded; false if it didn't, and should be re-attempted later
      * (meaning the entry cache should not be cleared  of this entry)*/
-    fun write(c:Context, time:Long, dataValues:Map<EntryType, String>):Boolean
+    fun write(sp:SharedPreferences, time:Long, dataValues:Map<EntryType, String>):Boolean
 }
