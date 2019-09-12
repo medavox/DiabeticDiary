@@ -46,12 +46,11 @@ class IngredientsListAdapter(private val activity :Activity) : BaseAdapter(), Cl
             return null
         }
         val view:View =
-        if(convertView == null || !convertViewIsUsable(convertView)) {
-            activity.layoutInflater.inflate(R.layout.ingredient_list_item, null)
-        }
-        else {
-            convertView
-        }
+            if(convertView == null || !convertViewIsUsable(convertView)) {
+                activity.layoutInflater.inflate(R.layout.ingredient_list_item, null)
+            } else {
+                convertView
+            }
 
         val ci:CarbIngredient = items.get(i)
         //carb_ing

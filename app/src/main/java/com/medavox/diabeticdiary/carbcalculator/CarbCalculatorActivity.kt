@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.activity_carb_calculator.*
 class CarbCalculatorActivity : AppCompatActivity() {
     private val TAG = "CarbCalculator"
 
-    protected override fun onCreate(savedInstanceState:Bundle?) {
+    override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_carb_calculator)
 
@@ -61,8 +61,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
                                 +ingredientsAdapter.getItem(i)::class.java.simpleName)
                     }
                 }
-                val CPs:Float = sum / 1000.0F
-                total_carb_reading.setText("Total: "+CPs+" CP")
+                total_carb_reading.text = "Total: ${sum / 1000.0F} CP"
             }
         })
         val addListener = AddListener(ingredient_grams_edit_box, ingredient_carb_percent_edit_box, ingredientsAdapter)
@@ -77,11 +76,10 @@ class CarbCalculatorActivity : AppCompatActivity() {
                                     ) : View.OnClickListener, TextView.OnEditorActionListener {
         override fun onEditorAction(textView:TextView?, actionId:Int, keyEvent:KeyEvent?):Boolean {
             Log.i(TAG, "editor action on $textView: $actionId keyEvent: $keyEvent")
-            if(actionId == EditorInfo.IME_ACTION_DONE) {
+            return if(actionId == EditorInfo.IME_ACTION_DONE) {
                 onClick(textView)
-                return true
-            }
-            return false
+                true
+            } else false
         }
 
         override fun onClick(view:View?) {
