@@ -25,14 +25,14 @@ interface EntryDao {
     fun getRecentEntries(inTheLast:Long):List<Entry>
 
 
-    @Query("SELECT * FROM Entry WHERE time > ${Entry.QA_DURATION_MS} AND entryType = \"QA\"")
-    fun getRecentQA():List<Entry>
+    @Query("SELECT * FROM Entry WHERE time > :since AND entryType = \"QA\" AND data != \"\"")
+    fun getRecentQA(since:Long):List<Entry>
 
-    @Query("SELECT * FROM Entry WHERE time > ${Entry.QA_DURATION_MS} AND entryType = \"CP\"")
-    fun getRecentCP():List<Entry>
+    @Query("SELECT * FROM Entry WHERE time > :since AND entryType = \"CP\" AND data != \"\"")
+    fun getRecentCP(since:Long):List<Entry>
 
-    @Query("SELECT * FROM Entry WHERE time > ${Entry.BI_DURATION_MS} AND entryType = \"BI\"")
-    fun getRecentBI():List<Entry>
+    @Query("SELECT * FROM Entry WHERE time > :since AND entryType = \"BI\" AND data != \"\"")
+    fun getRecentBI(since:Long):List<Entry>
 
     //WHERE entryType = '${EntryTypes.BloodGlucose.naam}
     @Query("SELECT * FROM Entry WHERE entryType = \"BG\" LIMIT :numberToGet")

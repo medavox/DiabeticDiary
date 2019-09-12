@@ -19,7 +19,7 @@ class StatusReportActivity : AppCompatActivity() {
         super.onResume()
 
         //populate recent cp
-        val cp = DiabApp.db().getRecentCP()
+        val cp = DiabApp.db().getRecentCP(Entry.fiveHoursAgo)
         recent_cp_value.adapter = ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, cp)
         if(cp.isNotEmpty()) {
@@ -32,7 +32,7 @@ class StatusReportActivity : AppCompatActivity() {
         }
 
         //populate recent QA
-        val qa = DiabApp.db().getRecentQA()
+        val qa = DiabApp.db().getRecentQA(Entry.fiveHoursAgo)
         recent_qa_value.setAdapter(ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, qa))
         if(qa.isNotEmpty()) {
@@ -45,7 +45,7 @@ class StatusReportActivity : AppCompatActivity() {
         }
 
         //populate recent BI
-        val bi = DiabApp.db().getRecentBI()
+        val bi = DiabApp.db().getRecentBI(Entry.twentyFiveHoursAgo)
         recent_bi_value.adapter = ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, bi)
 

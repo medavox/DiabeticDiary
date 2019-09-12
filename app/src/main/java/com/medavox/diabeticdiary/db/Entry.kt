@@ -46,8 +46,14 @@ data class Entry(val time:Long,
         //11 january 1922: the first time a human was injected with insulin
         //a fitting minimum date.
         private val DIABETIC_EPOCH = -1513857600000L
-        const val QA_DURATION_MS = (4 * 3600 * 1000 + 5 * 60000).toLong()
-        const val BI_DURATION_MS = (25 * 60 * 60 * 1000).toLong()
+
+        val fiveHoursAgo:Long get() {
+            return System.currentTimeMillis() - (5L * 3600L * 1000L)
+        }
+
+        val twentyFiveHoursAgo:Long get() {
+            return System.currentTimeMillis() - (25L * 60L * 60L * 1000L)
+        }
     }
 
     override fun toString():String {
