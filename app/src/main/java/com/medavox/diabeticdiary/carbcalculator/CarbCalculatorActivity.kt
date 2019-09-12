@@ -15,7 +15,6 @@ import com.medavox.util.validate.Validator
 
 import kotlinx.android.synthetic.main.activity_carb_calculator.*
 //TODO:
-// focus the first text input box in onResume()
 // expand the text input fields to fill the rest of the row not occupied by the text
 // support optional decimal percentages (1dp only), eg milk is 4.7%, not 5%
 // button to add the calculated carb to a new CP entry in the main activity
@@ -68,6 +67,11 @@ class CarbCalculatorActivity : AppCompatActivity() {
         ingredient_carb_percent_edit_box.setOnEditorActionListener(addListener)
         add_ingredient_button.setOnClickListener(addListener)
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ingredient_grams_edit_box.requestFocus()
     }
 
     private inner class AddListener(private val gramsBox:EditText,
