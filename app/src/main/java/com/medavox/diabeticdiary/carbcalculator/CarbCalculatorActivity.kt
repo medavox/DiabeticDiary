@@ -28,7 +28,6 @@ class CarbCalculatorActivity : AppCompatActivity() {
         setContentView(R.layout.activity_carb_calculator)
 
         val ingredientsAdapter = IngredientsListAdapter(this)
-        //Button addButton = (Button) findViewById(R.id.)
 
         ingredients_list.setAdapter(ingredientsAdapter)
         /*listView.setOnItemClickListener(AdapterView.OnItemClickListener() {
@@ -41,8 +40,6 @@ class CarbCalculatorActivity : AppCompatActivity() {
         ingredients_list.onItemLongClickListener = object:AdapterView.OnItemLongClickListener {
             override fun onItemLongClick(adapterView:AdapterView<*>?, view:View?, pos:Int, rowId:Long):Boolean {
                 Log.i(TAG, "item at position "+pos+" clicked; view:"+stringOf(view))
-                //ArrayAdapter<String> a = ((ArrayAdapter<String>)listView.getAdapter())
-                //a.remove(a.getItem(pos))
                 return true
             }
         }
@@ -50,16 +47,8 @@ class CarbCalculatorActivity : AppCompatActivity() {
         ingredientsAdapter.registerDataSetObserver(object:DataSetObserver() {
             override fun onChanged() {
                 super.onChanged()
-                var sum = 0
-                for(i in 0 until ingredientsAdapter.count) {
-                    if(ingredientsAdapter.getItem(i) is CarbIngredient) {
-                        sum += (ingredientsAdapter.getItem(i) as CarbIngredient).CPx1000
-                    }
-                    else {
-                        Log.e(TAG, "item in adapter isn't the right class!" +
-                                "\nExpected class: CarbIngredient; Actual Class: "
-                                +ingredientsAdapter.getItem(i)::class.java.simpleName)
-                    }
+                val sum = ingredientsAdapter.items.fold(0F) {
+                    acc:Float, elem:CarbIngredient -> acc + elem.CPx1000
                 }
                 total_carb_reading.text = "Total: ${sum / 1000.0F} CP"
             }
@@ -92,7 +81,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
             val carbPercentString = carbPercentBox.text.toString()
             try {
                 val grames = Integer.parseInt(gramsString)
-                val percente = Integer.parseInt(carbPercentString)
+                val percente = carbPercentString.toFloat()
 
                 Validator.check(percente >= 0, "Carb percentage must be above zero!")
                 Validator.check(percente <= 100, "Carb percentage must be less than 100%!")

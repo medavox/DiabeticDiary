@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.ingredient_list_item.view.*
  */
 
 class IngredientsListAdapter(private val activity :Activity) : BaseAdapter(), Closeable {
-    private val items:MutableList<CarbIngredient> = mutableListOf()
+    val items:MutableList<CarbIngredient> = mutableListOf()
     private val TAG = "IngredientsAdapter"
 
     fun add(ci:CarbIngredient) {
