@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_carb_calculator.*
 // support optional decimal percentages (1dp only), eg milk is 4.7%, not 5%
 // button to add the calculated carb to a new CP entry in the main activity
 // be able to resume previous calculation
+// reverse CP calculator: in order to have X CP of food at Y % carb, how many grams should I eat?
 class CarbCalculatorActivity : AppCompatActivity() {
     private val TAG = "CarbCalculator"
 
