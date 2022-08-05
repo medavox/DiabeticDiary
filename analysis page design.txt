@@ -1,0 +1,22 @@
+every day's insulin totals from the last 14 days
+days are rows
+3 columns: total QA, total BI, combined Total
+
+THEN averages:
+last 24 hours
+last 72 hours
+7-day averages: blue, grey, combined
+each of the previous 3 week's averages
+14-day
+30-day
+90-day (labeled as 3 months)
+6 months
+1 year
+2 years
+5 years??
+
+THEN the DAFNE 'pattern-spotting' table:
+columns are hours
+rows are days,
+    but also in groups of 3: BG-CP-QA
+7 or 14 days' worth
