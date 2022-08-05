@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="QA Taken in the last 4 hours:"
+                android:text="QA Taken in the last 5 hours:"
                 android:textSize="@dimen/title_size" />
 
             <com.medavox.diabeticdiary.statusreport.ExpandedListView
@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="CPs eaten in the last 4 hours:"
+                android:text="CPs eaten in the last 5 hours:"
                 android:textSize="@dimen/title_size" />
 
             <com.medavox.diabeticdiary.statusreport.ExpandedListView

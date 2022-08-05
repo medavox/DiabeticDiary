@@ -44,6 +44,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
             }
         }
 
+        //it's a shame we can't convert this into a lambda
         ingredientsAdapter.registerDataSetObserver(object:DataSetObserver() {
             override fun onChanged() {
                 super.onChanged()
