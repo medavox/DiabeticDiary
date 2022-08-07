@@ -92,7 +92,7 @@ class DiabApp():Application() {
                         )
                         db.entryDao().insertEntries(importedEntry)
                     }catch (e:Exception) {
-                        Log.w(TAG, "offending record: $line")
+                        Log.e(TAG, "offending record: $line")
                         throw e
                     }
                 }
