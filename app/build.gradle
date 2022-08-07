@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.github.medavox.diabeticdiary"
-        minSdk 23
+        minSdk 26
         targetSdk 32
         versionCode 2
         versionName "0.7"
