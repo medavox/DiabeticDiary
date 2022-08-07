@@ -7,14 +7,15 @@ import com.medavox.diabeticdiary.DiabApp
 import com.medavox.diabeticdiary.R
 import com.medavox.diabeticdiary.db.Entry
 import com.medavox.diabeticdiary.db.EntryType
-
-import kotlinx.android.synthetic.main.activity_status_report.*
+import com.medavox.diabeticdiary.databinding.ActivityStatusReportBinding
 
 class StatusReportActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityStatusReportBinding
     override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_status_report)
+        binding = ActivityStatusReportBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     override fun onResume() {
@@ -22,47 +23,47 @@ class StatusReportActivity : AppCompatActivity() {
 
         //populate recent cp
         val cp = DiabApp.db().getRecentCP(Entry.fiveHoursAgo)
-        recent_cp_value.adapter = ArrayAdapter<Entry>(this,
+        binding.recentCpValue.adapter = ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, cp)
         if(cp.isNotEmpty()) {
             check(cp.all { it.entryType == EntryType.CarbPortion })//check they're all CP entries
             val total = cp.fold(0F ){acc:Float, elem:Entry -> acc+elem.data.toFloat()}
-            recent_qa_total.text = "TOTAL: $total"
+            binding.recentQaTotal.text = "TOTAL: $total"
         }
         else {
-            recent_qa_total.text = "TOTAL: 0"
+            binding.recentQaTotal.text = "TOTAL: 0"
         }
 
         //populate recent QA
         val qa = DiabApp.db().getRecentQA(Entry.fiveHoursAgo)
-        recent_qa_value.setAdapter(ArrayAdapter<Entry>(this,
+        binding.recentQaValue.setAdapter(ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, qa))
         if(qa.isNotEmpty()) {
             check(qa.all { it.entryType == EntryType.QuickActing })//check they're all QA entries
             val total =  qa.fold(0) { acc:Int, elem:Entry -> acc + elem.data.toInt()}
-            recent_qa_total.text = "TOTAL: $total"
+            binding.recentQaTotal.text = "TOTAL: $total"
         }
         else {
-            recent_qa_total.text = "TOTAL: 0"
+            binding.recentQaTotal.text = "TOTAL: 0"
         }
 
         //populate recent BI
         val bi = DiabApp.db().getRecentBI(Entry.twentyFiveHoursAgo)
-        recent_bi_value.adapter = ArrayAdapter<Entry>(this,
+        binding.recentBiValue.adapter = ArrayAdapter<Entry>(this,
                 R.layout.status_report_entry_list_item, bi)
 
         if(bi.isNotEmpty()) {
             check(bi.all { it.entryType == EntryType.BackgroundInsulin })//check they're all BI entries
             val  total = bi.fold(0) {acc:Int, elem:Entry -> acc + elem.data.toInt()}
-            recent_bi_total.text = "TOTAL: $total"
+            binding.recentBiTotal.text = "TOTAL: $total"
         }
         else {
-            recent_bi_total.text = "TOTAL: 0"
+            binding.recentBiTotal.text = "TOTAL: 0"
         }
 
         //populate lastBG field
         val bg = DiabApp.db().getLastBG(3)
-        last_bg_value.adapter = ArrayAdapter<Entry>(this, R.layout.status_report_entry_list_item, bg)
+        binding.lastBgValue.adapter = ArrayAdapter<Entry>(this, R.layout.status_report_entry_list_item, bg)
         /*if(bg != null) {
             String thag = bg.getBloodGlucose() + " (at " + DateTime.get(bg.getTime(), MINUTES)+")"
             lastBG.setText(thag)

@@ -5,11 +5,7 @@ import androidx.fragment.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.date_time_picker.*
-import kotlinx.android.synthetic.main.date_time_picker.view.*
-import kotlinx.android.synthetic.main.date_time_picker.view.datePicker
-import kotlinx.android.synthetic.main.date_time_picker.view.timePicker
+import com.medavox.diabeticdiary.databinding.DateTimePickerBinding
 
 import java.util.Calendar
 
@@ -19,33 +15,33 @@ import java.util.Calendar
  */
 class DateTimePickerFragment : DialogFragment() {
     private val c = Calendar.getInstance()
-
     override fun onCreateView(inflater:LayoutInflater, container:ViewGroup?,
-                             savedInstanceState:Bundle?):View? {
-        val view = inflater.inflate(R.layout.date_time_picker, container)
+                             savedInstanceState:Bundle?):View {
+        val binding = DateTimePickerBinding.inflate(layoutInflater)
+        val view = binding.root
 
         //final TimePicker timePicker = (TimePicker) (view.findViewById(R.id.timePicker))
         //final DatePicker datePicker = (DatePicker) (view.findViewById(R.id.datePicker))
 
         //disallow selection of dates in the future
-        view.datePicker.setMaxDate(System.currentTimeMillis())
-        view.timePicker.setIs24HourView(true)
+        binding.datePicker.setMaxDate(System.currentTimeMillis())
+        binding.timePicker.setIs24HourView(true)
 
         //set pickers to eventInstant
-        c.timeInMillis = MainActivity.eventInstant
-        view.datePicker.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH))
-        view.timePicker.setCurrentHour(c.get(Calendar.HOUR_OF_DAY))
-        view.timePicker.setCurrentMinute(c.get(Calendar.MINUTE))
+        c.timeInMillis = (activity as MainActivity?)?.lastEventInstant ?: System.currentTimeMillis()// TODO: viewModel
+        binding.datePicker.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH))
+        binding.timePicker.hour = c.get(Calendar.HOUR_OF_DAY)
+        binding.timePicker.minute = c.get(Calendar.MINUTE)
 
         //Button confirmButton = (Button) (view.findViewById(R.id.))
-        view.confirm_date_time.setOnClickListener{
+        binding.confirmDateTime.setOnClickListener{
             //alternative approach to updating entryTimeButton:
             //view.getRootView().findViewById(R.id.entry_time_button)
 
-            c.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
-                    timePicker.getCurrentHour(), timePicker.getCurrentMinute())
-            MainActivity.eventInstant = c.getTimeInMillis()
-            MainActivity.updateEntryTime( activity?.entry_time_button)
+            c.set(binding.datePicker.year, binding.datePicker.month, binding.datePicker.dayOfMonth,
+                binding.timePicker.hour, binding.timePicker.minute
+            )
+            (activity as MainActivity?)?.updateEntryTime(eventInstant = c.timeInMillis)
             this@DateTimePickerFragment.dismiss()
         }
         return view

@@ -2,7 +2,6 @@ plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
 }
-apply plugin: "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
 //apply plugin: "realm-android"
 
@@ -31,6 +30,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        viewBinding true
         compose true
     }
     composeOptions {

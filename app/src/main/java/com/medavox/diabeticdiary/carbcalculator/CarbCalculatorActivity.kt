@@ -9,11 +9,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.medavox.diabeticdiary.R
+import com.medavox.diabeticdiary.databinding.ActivityCarbCalculatorBinding
 import com.medavox.diabeticdiary.stringsOf
 
 import com.medavox.util.validate.Validator
 
-import kotlinx.android.synthetic.main.activity_carb_calculator.*
 //TODO:
 // expand the text input fields to fill the rest of the row not occupied by the text
 // support optional decimal percentages (1dp only), eg milk is 4.7%, not 5%
@@ -22,14 +22,15 @@ import kotlinx.android.synthetic.main.activity_carb_calculator.*
 // reverse CP calculator: in order to have X CP of food at Y % carb, how many grams should I eat?
 class CarbCalculatorActivity : AppCompatActivity() {
     private val TAG = "CarbCalculator"
+    private lateinit var binding: ActivityCarbCalculatorBinding
 
     override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_carb_calculator)
-
+        binding = ActivityCarbCalculatorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val ingredientsAdapter = IngredientsListAdapter(this)
 
-        ingredients_list.setAdapter(ingredientsAdapter)
+        binding.ingredientsList.setAdapter(ingredientsAdapter)
         /*listView.setOnItemClickListener(AdapterView.OnItemClickListener() {
             override fun onItemClick(AdapterView<?> adapterView, View view, int position, long rowId) {
                 Log.i(TAG, "item at position "+position+" clicked; view:"+stringOf(view))
@@ -37,7 +38,7 @@ class CarbCalculatorActivity : AppCompatActivity() {
 
         });*/
 
-        ingredients_list.onItemLongClickListener = object:AdapterView.OnItemLongClickListener {
+        binding.ingredientsList.onItemLongClickListener = object:AdapterView.OnItemLongClickListener {
             override fun onItemLongClick(adapterView:AdapterView<*>?, view:View?, pos:Int, rowId:Long):Boolean {
                 Log.i(TAG, "item at position "+pos+" clicked; view:"+stringOf(view))
                 return true
@@ -51,18 +52,18 @@ class CarbCalculatorActivity : AppCompatActivity() {
                 val sum = ingredientsAdapter.items.fold(0F) {
                     acc:Float, elem:CarbIngredient -> acc + elem.CPx1000
                 }
-                total_carb_reading.text = "Total: ${sum / 1000.0F} CP"
+                binding.totalCarbReading.text = "Total: ${sum / 1000.0F} CP"
             }
         })
-        val addListener = AddListener(ingredient_grams_edit_box, ingredient_carb_percent_edit_box, ingredientsAdapter)
-        ingredient_carb_percent_edit_box.setOnEditorActionListener(addListener)
-        add_ingredient_button.setOnClickListener(addListener)
+        val addListener = AddListener(binding.ingredientGramsEditBox, binding.ingredientCarbPercentEditBox, ingredientsAdapter)
+        binding.ingredientCarbPercentEditBox.setOnEditorActionListener(addListener)
+        binding.addIngredientButton.setOnClickListener(addListener)
 
     }
 
     override fun onResume() {
         super.onResume()
-        ingredient_grams_edit_box.requestFocus()
+        binding.ingredientGramsEditBox.requestFocus()
     }
 
     private inner class AddListener(private val gramsBox:EditText,

@@ -1,6 +1,5 @@
 package com.medavox.diabeticdiary
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -18,6 +17,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import com.medavox.diabeticdiary.carbcalculator.CarbCalculatorActivity
+import com.medavox.diabeticdiary.databinding.ActivityMainBinding
 
 import com.medavox.diabeticdiary.db.EntryType
 import com.medavox.diabeticdiary.db.SqliteWriter
@@ -31,7 +31,6 @@ import java.util.regex.Pattern
 
 import com.medavox.util.io.DateTime.DateFormat
 import com.medavox.util.io.DateTime.TimeFormat
-import kotlinx.android.synthetic.main.activity_main.*
 
 //consider importing numberpicker module from https://github.com/SimonVT/android-numberpicker,
 //then customising it to my needs
@@ -61,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var smsWriter:SmsWriter
     private lateinit var outputs:Array<DataSink>
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         private val TAG = "DiabeticDiary"
@@ -74,22 +74,11 @@ class MainActivity : AppCompatActivity() {
         const val SP_KEY = "Diabetic Diary SharedPreferences Key"
         const val ENTRIES_CACHE_KEY = "Diabetic Diary cached entries"
         const val SMS_RECIPIENTS_KEY = "Diabetic Diary entry SMS recipients"
-
-        @JvmField
-        var eventInstant:Long = 0L
-
-        fun updateEntryTime(entryTimeButton:Button?) {
-            if(entryTimeButton != null) {
-                entryTimeButton.text = "At " + DateTime.get(eventInstant, TimeFormat.MINUTES,
-                        DateFormat.BRIEF_WITH_DAY)
-            }
-            else {
-                Log.e(TAG, "entry time (static) button was null during onResume!")
-            }
-        }
     }
     override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setContentView(R.layout.activity_main)
 
 
@@ -97,15 +86,18 @@ class MainActivity : AppCompatActivity() {
         smsWriter = SmsWriter(this)
         outputs = arrayOf<DataSink>(CsvWriter(), smsWriter, SqliteWriter())
 
-        inputs = arrayOf(BGinput, CPinput, QAinput, BIinput, KTinput, notesInput)
-        checkBoxes = arrayOf(BGcheckBox, CPcheckBox, QAcheckBox, BIcheckBox, KTcheckBox,
-                notesCheckbox)
-
+        with(binding) {
+            inputs = arrayOf(BGinput, CPinput, QAinput, BIinput, KTinput, notesInput)
+            checkBoxes = arrayOf(
+                BGcheckBox, CPcheckBox, QAcheckBox, BIcheckBox, KTcheckBox,
+                notesCheckbox
+            )
+        }
         //add an anonymous TextWatcher for every input field
         for(i in inputs.indices) {
             val cb = checkBoxes[i]
             val index = i
-            val recordButton:Button = record_button
+            val recordButton:Button = binding.recordButton
             inputs[i].addTextChangedListener(object:TextWatcher {
                 override fun beforeTextChanged(c:CharSequence,i:Int,j:Int,k:Int){}
                 override fun onTextChanged(c:CharSequence,i:Int,j:Int,k:Int){}
@@ -152,17 +144,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         //add the onClickListeners
-        entry_time_button.setOnClickListener {
+        binding.entryTimeButton.setOnClickListener {
             val newFragment:DialogFragment = DateTimePickerFragment()
             newFragment.show(supportFragmentManager, "DateTimePicker")
         }
 
-        reset_time_button.setOnClickListener {
-            eventInstant = System.currentTimeMillis()
-            updateEntryTime(entry_time_button)
+        binding.resetTimeButton.setOnClickListener {
+            updateEntryTime(eventInstant = System.currentTimeMillis())
         }
 
-        record_button.setOnClickListener { _ ->
+        binding.recordButton.setOnClickListener { _ ->
             val anyTicked = checkBoxes.any { it.isChecked }
 
             if(!anyTicked) {
@@ -178,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val results:BooleanArray = outputs.map {
-                it.write(getSharedPreferences(SP_KEY, MODE_PRIVATE), eventInstant, values)
+                it.write(getSharedPreferences(SP_KEY, MODE_PRIVATE), lastEventInstant, values)
             }.toTypedArray().toBooleanArray()
             //results[i] = outputs[i].write(this, eventInstant, values)
 
@@ -217,12 +208,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        eventInstant = System.currentTimeMillis()
         //clear all fields on resume, to prepare the app for a fresh entry
         //clearInputs()
         inputs[INDEX_BG].requestFocus()
-        updateEntryTime(entry_time_button)
+        updateEntryTime(eventInstant = System.currentTimeMillis())
 
+    }
+
+
+    @JvmField
+    var lastEventInstant:Long = 0L
+
+    fun updateEntryTime(eventInstant: Long) {
+        lastEventInstant = eventInstant
+        binding.entryTimeButton.text = "At " + DateTime.get(eventInstant, TimeFormat.MINUTES,
+            DateFormat.BRIEF_WITH_DAY)
     }
 
     override fun onCreateOptionsMenu(menu:Menu):Boolean {
@@ -282,6 +282,7 @@ class MainActivity : AppCompatActivity() {
     //i really wish i could put this method in SmsWriter
     override fun onRequestPermissionsResult(requestCode:Int, permissions:Array<String>,
                                            grantResults:IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         //if there are no permissions etc to process, return early.
 //See https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback.html#onRequestPermissionsResult%28int,%20java.lang.String[],%20int[]%29
         if(permissions.size != 1 || grantResults.size != 1) {

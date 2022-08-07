@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import kotlinx.android.synthetic.main.edit_numbers_dialog.view.*
+import com.medavox.diabeticdiary.databinding.EditNumbersDialogBinding
 
 /**
  * @author Adam Howard
@@ -21,7 +21,8 @@ class EditNumbersDialogFragment : DialogFragment() {
 
     override fun onCreateView(inflater:LayoutInflater, container:ViewGroup?,
                              savedInstanceState:Bundle?):View? {
-        val view = inflater.inflate(R.layout.edit_numbers_dialog, container)
+        val binding = EditNumbersDialogBinding.inflate(layoutInflater)
+        val view = binding.root
         val context:Context =  if(activity  == null) {
             Log.e(TAG, "activity was null. Can't do anything!")
             return null
@@ -35,44 +36,45 @@ class EditNumbersDialogFragment : DialogFragment() {
 
         val numbersAdapter:ArrayAdapter<String> = ArrayAdapter(context,
                 R.layout.edit_numbers_list_item, numbersListCollection)
-        numbersAdapter.addAll(sharedPrefsNumbers)
+        sharedPrefsNumbers?.let { numbersAdapter.addAll(it) }
         Log.i(TAG, "numbersAdapter length:" + numbersAdapter.getCount() +
                 "; contents (including loaded SharedPrefs data):" + stringsOf(numbersAdapter))
 
-        view.numbers_list.adapter = numbersAdapter
+        binding.numbersList.adapter = numbersAdapter
 
-        view.numbers_list.onItemLongClickListener = AdapterView.OnItemLongClickListener { adapterView, _, pos, _ ->
-            val a = (view.numbers_list.adapter as ArrayAdapter<String>)
+        binding.numbersList.onItemLongClickListener = AdapterView.OnItemLongClickListener { adapterView, _, pos, _ ->
+            val a = (binding.numbersList.adapter as ArrayAdapter<String>)
             a.remove(a.getItem(pos))
             true
         }
 
-        view.add_number_button.setOnClickListener {
-            val editBoxContents = view.number_edit_box.text.toString()
+        binding.addNumberButton.setOnClickListener {
+            val editBoxContents = binding.numberEditBox.text.toString()
             if (!isValidPhoneNumber(editBoxContents)) {
                 Toast.makeText(context, "Entered text is not a valid British mobile phone number.",
                         Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
-            val adapter = view.numbers_list.adapter as ArrayAdapter<String>
+            val adapter = binding.numbersList.adapter as ArrayAdapter<String>
             adapter.add(editBoxContents)
             Log.i(TAG, "add pressed; adapter length:" + adapter.getCount() +
                     "; contents: " + stringsOf(adapter))
             //numbersAdapter.notifyDataSetChanged()
         }
 
-        view.confirm_numbers.setOnClickListener {
+        binding.confirmNumbers.setOnClickListener {
                 val editor = sp?.edit()
                 //bizarrely, there doesn't seem to be a method in ArrayAdapters,
                 // to get all the data out in one go. eg ArrayAdapter.getArray()
-                val adapter = view.numbers_list.adapter as ArrayAdapter<String>
+                val adapter = binding.numbersList.adapter as ArrayAdapter<String>
                 val newData = HashSet<String>(adapter.count)
                 val numbersAsString = StringBuilder()
                 for (i in 0 until adapter.count) {
-                    val s = adapter.getItem(i)
-                    if (isValidPhoneNumber(s)) {
-                        newData.add(s)
-                        numbersAsString.append( adapter.getItem(i) + "; ")
+                    adapter.getItem(i)?.let {
+                        if (isValidPhoneNumber(it)) {
+                            newData.add(it)
+                            numbersAsString.append(adapter.getItem(i) + "; ")
+                        }
                     }
                 }
                 editor?.putStringSet(MainActivity.SMS_RECIPIENTS_KEY, newData)

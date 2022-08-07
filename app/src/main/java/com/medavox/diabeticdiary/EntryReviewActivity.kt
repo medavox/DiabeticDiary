@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.medavox.diabeticdiary.databinding.ActivityCarbCalculatorBinding
+import com.medavox.diabeticdiary.databinding.ActivityEntryReviewBinding
+import com.medavox.diabeticdiary.databinding.EntryReviewItemBinding
 import com.medavox.diabeticdiary.db.EntryDao
-import kotlinx.android.synthetic.main.entry_review_item.view.*
-import org.threeten.bp.*
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.*
+import java.time.format.DateTimeFormatter
 
 /**
  * @author Adam Howard
@@ -20,10 +22,12 @@ import org.threeten.bp.format.DateTimeFormatter
 class EntryReviewActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: ActivityEntryReviewBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_entry_review)
+        binding = ActivityEntryReviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Inflate the layout for this fragment
         recyclerView = findViewById<RecyclerView>(R.id.entry_review_list).apply {
@@ -40,19 +44,21 @@ class EntryReviewActivity : AppCompatActivity() {
     }
 
     data class EntryViewHolder(val view:View) : RecyclerView.ViewHolder(view){
+
         fun reuse(entryValue:String, dateHeading:String?=null, timeHeading:String?=null) {
-            view.entry_value.text = entryValue
+            val binding:EntryReviewItemBinding = EntryReviewItemBinding.inflate(LayoutInflater.from(view.context))
+            binding.entryValue.text = entryValue
             if(dateHeading != null) {
-                view.date_heading.text = dateHeading
-                view.date_heading.visibility = View.VISIBLE
+                binding.dateHeading.text = dateHeading
+                binding.dateHeading.visibility = View.VISIBLE
             } else {
-                view.date_heading.visibility = View.GONE
+                binding.dateHeading.visibility = View.GONE
             }
             if(timeHeading != null) {
-                view.time_heading.text = timeHeading
-                view.time_heading.visibility = View.VISIBLE
+                binding.timeHeading.text = timeHeading
+                binding.timeHeading.visibility = View.VISIBLE
             } else {
-                view.time_heading.visibility = View.GONE
+                binding.timeHeading.visibility = View.GONE
             }
             //Log.i("EntryViewHolder", "main thing width:"+view.entry_value.width)
         }
@@ -92,7 +98,8 @@ class EntryReviewActivity : AppCompatActivity() {
             }
             val previousEntry = dao.getNthMostRecentEntry(position+1)
 
-            val currEntryDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(entry.time),
+            val currEntryDateTime = ZonedDateTime.ofInstant(
+                    Instant.ofEpochMilli(entry.time),
                     ZoneOffset.UTC)
                 .withZoneSameInstant(ZoneId.of("Europe/London"))
             data class showDateAndTime(val showDate:Boolean, val showTime:Boolean)
@@ -110,7 +117,7 @@ class EntryReviewActivity : AppCompatActivity() {
             }
             //Log.v(TAG, "entry $position: $entry; showDate=$showDate; showTime=$showTime")
 
-            val dtfDate:DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
+            val dtfDate: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM")
             val dtfTime:DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val today = LocalDateTime.now(ZoneId.of("Europe/London"))
             val yesterday = today.minusDays(1)
