@@ -47,12 +47,16 @@ data class Entry(val time:Long,
         //a fitting minimum date.
         private val DIABETIC_EPOCH = -1513857600000L
 
-        val fiveHoursAgo:Long get() {
-            return System.currentTimeMillis() - (5L * 3600L * 1000L)
+        val sixHoursAgo:Long get() {
+            return System.currentTimeMillis() - (6L * 3600L * 1000L)
         }
 
-        val twentyFiveHoursAgo:Long get() {
-            return System.currentTimeMillis() - (25L * 60L * 60L * 1000L)
+        val twentyFourHoursAgo:Long get() {
+            return System.currentTimeMillis() - (24L * 3600L * 1000L)
+        }
+
+        val twentySixHoursAgo:Long get() {
+            return System.currentTimeMillis() - (26L * 60L * 60L * 1000L)
         }
     }
 
